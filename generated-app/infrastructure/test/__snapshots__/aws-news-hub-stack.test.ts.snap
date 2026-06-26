@@ -143,7 +143,7 @@ exports[`AwsNewsHubStack matches snapshot 1`] = `
       "Properties": {
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
-          "S3Key": "24b9a4cf2fff05fad365bd67b2d13e56e458a9dbeb5e0f23328993bdc3cf72f7.zip",
+          "S3Key": "b2ba6ba1caf75fb078a079332e8feb6e0777a95f39439715c9ef0f74087e85bd.zip",
         },
         "Environment": {
           "Variables": {

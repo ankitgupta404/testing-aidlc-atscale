@@ -11,6 +11,9 @@ import { Construct } from "constructs";
 import * as path from "path";
 
 export class AwsNewsHubStack extends cdk.Stack {
+  public readonly apiUrl: cdk.CfnOutput;
+  public readonly tableName: cdk.CfnOutput;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -124,7 +127,7 @@ export class AwsNewsHubStack extends cdk.Stack {
     });
 
     // Stack Outputs
-    new cdk.CfnOutput(this, "ApiUrl", {
+    this.apiUrl = new cdk.CfnOutput(this, "ApiUrl", {
       value: httpApi.apiEndpoint,
       description: "The HTTP API endpoint URL",
     });
@@ -139,7 +142,7 @@ export class AwsNewsHubStack extends cdk.Stack {
       description: "The CloudFront distribution URL",
     });
 
-    new cdk.CfnOutput(this, "TableName", {
+    this.tableName = new cdk.CfnOutput(this, "TableName", {
       value: table.tableName,
       description: "The DynamoDB table name",
     });
