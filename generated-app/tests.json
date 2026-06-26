@@ -61,6 +61,12 @@
   },
   {
     "category": "backend",
+    "description": "Backend TypeScript compiles with no errors",
+    "steps": ["Run cd backend && npx tsc --noEmit", "Verify exit code 0"],
+    "passes": true
+  },
+  {
+    "category": "backend",
     "description": "Local API server starts and returns seed data",
     "steps": ["Start local server", "curl http://localhost:4001/announcements", "Verify 15 announcements returned"],
     "passes": true
