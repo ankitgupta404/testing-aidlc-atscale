@@ -58,6 +58,7 @@ export class AwsNewsHubStack extends cdk.Stack {
       bundling: {
         externalModules: ["@aws-sdk/*"],
         sourceMap: true,
+        tsconfig: path.join(__dirname, "../../backend/tsconfig.bundle.json"),
       },
     });
 
