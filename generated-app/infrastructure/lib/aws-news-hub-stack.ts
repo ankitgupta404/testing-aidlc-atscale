@@ -60,6 +60,7 @@ export class AwsNewsHubStack extends cdk.Stack {
         sourceMap: true,
         tsconfig: path.join(__dirname, "../../backend/tsconfig.bundle.json"),
       },
+      projectRoot: path.join(__dirname, "../.."),
     });
 
     // Grant Lambda access to DynamoDB
