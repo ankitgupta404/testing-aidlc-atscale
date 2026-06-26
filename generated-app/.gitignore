@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+cdk.out/
+.cdk.staging/
+
+# Environment
+.env
+.env.local
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Screenshots (generated during testing)
+screenshots/
+
+# Temp files
+*.js.map
+*.d.ts.map
+
+# Legacy lock files
+pnpm-lock.yaml
