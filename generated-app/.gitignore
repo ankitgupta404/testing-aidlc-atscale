@@ -16,6 +16,20 @@ cdk.out/
 logs/
 *.log
 npm-debug.log*
+claude_log_*
+
+# Agent state
+agent_state.json
+
+# Other files not part of the generated app
+FEATURE_REQUEST.md
+README.md
+components.json
+eslint.config.js
+prompts/
+test-results/
+src/
+public/vite.svg
 
 # Editor
 .vscode/*
