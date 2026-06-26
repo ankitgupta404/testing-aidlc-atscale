@@ -1,0 +1,58 @@
+import type { AwsService } from "@aws-news-hub/shared";
+
+export const SERVICE_COLORS: Record<AwsService, string> = {
+  Lambda: "#FF9900",
+  S3: "#3F8624",
+  DynamoDB: "#4053D6",
+  Bedrock: "#8C4FFF",
+  EC2: "#FF9900",
+  ECS: "#ED7100",
+  CloudFront: "#8C4FFF",
+  "API Gateway": "#FF4F8B",
+  SQS: "#FF4F8B",
+  SNS: "#D13212",
+  EventBridge: "#FF4F8B",
+  "Step Functions": "#FF4F8B",
+  IAM: "#DD344C",
+  CloudWatch: "#FF4F8B",
+  CDK: "#3F8624",
+  Other: "#5F6B7A",
+};
+
+export const SERVICE_BG_COLORS: Record<AwsService, string> = {
+  Lambda: "bg-[#FFF3E0]",
+  S3: "bg-[#E8F5E9]",
+  DynamoDB: "bg-[#E8EAF6]",
+  Bedrock: "bg-[#F3E5F5]",
+  EC2: "bg-[#FFF3E0]",
+  ECS: "bg-[#FFF3E0]",
+  CloudFront: "bg-[#F3E5F5]",
+  "API Gateway": "bg-[#FCE4EC]",
+  SQS: "bg-[#FCE4EC]",
+  SNS: "bg-[#FFEBEE]",
+  EventBridge: "bg-[#FCE4EC]",
+  "Step Functions": "bg-[#FCE4EC]",
+  IAM: "bg-[#FFEBEE]",
+  CloudWatch: "bg-[#FCE4EC]",
+  CDK: "bg-[#E8F5E9]",
+  Other: "bg-[#ECEFF1]",
+};
+
+export const ALL_SERVICES: AwsService[] = [
+  "Lambda",
+  "S3",
+  "DynamoDB",
+  "Bedrock",
+  "EC2",
+  "ECS",
+  "CloudFront",
+  "API Gateway",
+  "SQS",
+  "SNS",
+  "EventBridge",
+  "Step Functions",
+  "IAM",
+  "CloudWatch",
+  "CDK",
+  "Other",
+];
