@@ -88,6 +88,18 @@ export function HomePage({ searchQuery }: HomePageProps) {
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
+          {/* Results count */}
+          {!isLoading && allAnnouncements.length > 0 && (
+            <div className="flex items-center justify-between mb-4 animate-fade-in">
+              <p className="text-sm text-text-secondary">
+                <span className="font-mono font-medium text-text-primary">{allAnnouncements.length}</span>
+                {" "}announcement{allAnnouncements.length !== 1 ? "s" : ""}
+                {selectedService && <span> in <span className="font-medium text-text-primary">{selectedService}</span></span>}
+                {debouncedSearch && <span> matching "<span className="font-medium text-text-primary">{debouncedSearch}</span>"</span>}
+              </p>
+            </div>
+          )}
+
           {isLoading ? (
             <LoadingState />
           ) : allAnnouncements.length === 0 ? (

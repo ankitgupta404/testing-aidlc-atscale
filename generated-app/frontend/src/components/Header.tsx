@@ -14,7 +14,7 @@ export function Header({ searchQuery, onSearchChange }: HeaderProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-aws-navy shadow-lg shadow-aws-navy/10">
+    <header className="sticky top-0 z-50 bg-aws-navy shadow-lg shadow-aws-navy/10 border-b-2 border-aws-orange/60">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
