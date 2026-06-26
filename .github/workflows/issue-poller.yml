@@ -255,3 +255,110 @@ jobs:
 
             echo "✅ Triggered agent-builder for issue #$FIRST_ISSUE"
           fi
+
+
+  # Job 3: Check for approved build plans (Phase 1 → Phase 2 transition)
+  # When the agent generates a BUILD_PLAN.md and posts for approval,
+  # this job detects the 👍 reaction and re-triggers the build.
+  check-plan-approvals:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install PyGithub
+
+      - name: Check for approved plans
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTHORIZED_APPROVERS: ${{ vars.AUTHORIZED_APPROVERS }}
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          from github import Github
+
+          GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+          _approvers_env = os.environ.get("AUTHORIZED_APPROVERS", "")
+          AUTHORIZED_APPROVERS = set(a.strip() for a in _approvers_env.split(",") if a.strip())
+
+          gh = Github(GITHUB_TOKEN)
+          repo = gh.get_repo(os.environ["GITHUB_REPOSITORY"])
+
+          # Find issues with plan-ready label
+          plan_ready_issues = list(repo.get_issues(state='open', labels=['plan-ready']))
+
+          if not plan_ready_issues:
+              print("📭 No plan-ready issues found")
+              exit(0)
+
+          for issue in plan_ready_issues:
+              # Skip if already building or complete
+              labels = [l.name for l in issue.labels]
+              if "agent-building" in labels or "agent-complete" in labels:
+                  print(f"⏭️ Issue #{issue.number} already building/complete - skip")
+                  continue
+
+              # Find the plan approval comment (contains "BUILD_PLAN.md Generated")
+              plan_comment = None
+              for comment in issue.get_comments():
+                  if "BUILD_PLAN.md Generated" in (comment.body or "") and "Awaiting Approval" in (comment.body or ""):
+                      plan_comment = comment
+                      break
+
+              if not plan_comment:
+                  print(f"⚠️ Issue #{issue.number} has plan-ready label but no plan comment - skip")
+                  continue
+
+              # Check for 👍 reaction from an authorized approver
+              approved = False
+              for reaction in plan_comment.get_reactions():
+                  if reaction.content == "+1" and reaction.user.login in AUTHORIZED_APPROVERS:
+                      approved = True
+                      print(f"✅ Issue #{issue.number}: Plan approved by {reaction.user.login}")
+                      break
+
+              if not approved:
+                  print(f"⏳ Issue #{issue.number}: Plan awaiting approval")
+                  continue
+
+              # Plan is approved — trigger the build
+              print(f"🚀 Triggering build for issue #{issue.number} (plan approved)")
+
+              # Remove plan-ready label
+              try:
+                  issue.remove_from_labels("plan-ready")
+              except Exception:
+                  pass
+
+              # Output the issue number for the trigger step
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write(f"plan_approved_issue={issue.number}\n")
+                  f.write("has_approved_plan=true\n")
+
+              # Only process one at a time
+              break
+          else:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("has_approved_plan=false\n")
+          EOF
+        id: check
+
+      - name: Trigger build for approved plan
+        if: steps.check.outputs.has_approved_plan == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.check.outputs.plan_approved_issue }}
+        run: |
+          echo "🚀 Triggering agent-builder for plan-approved issue #$ISSUE_NUMBER"
+
+          gh workflow run agent-builder.yml \
+            -R ${{ github.repository }} \
+            -f issue_number=$ISSUE_NUMBER \
+            -f force_rebuild=true
+
+          echo "✅ Triggered agent-builder for issue #$ISSUE_NUMBER (Phase 2: build from plan)"
