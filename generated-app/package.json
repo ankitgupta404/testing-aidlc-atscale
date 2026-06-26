@@ -13,6 +13,7 @@
     "seed": "cd backend && npx tsx src/seed.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "playwright": "^1.61.1"
   }
 }

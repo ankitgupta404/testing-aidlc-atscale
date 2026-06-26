@@ -1,0 +1,302 @@
+[
+  {
+    "category": "shared",
+    "description": "Shared schemas compile with no TypeScript errors",
+    "steps": ["Run cd shared && npx tsc --noEmit", "Verify exit code 0"],
+    "passes": true
+  },
+  {
+    "category": "shared",
+    "description": "Shared package builds successfully to dist/",
+    "steps": ["Run cd shared && npm run build", "Verify dist/ output exists"],
+    "passes": true
+  },
+  {
+    "category": "shared",
+    "description": "Shared package exports all required schemas",
+    "steps": ["Import from shared/src/index.ts", "Verify all schema exports are present"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK stack synthesizes successfully",
+    "steps": ["Run cd infrastructure && npx cdk synth", "Verify CloudFormation template is produced"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass (15 assertions)",
+    "steps": ["Run cd infrastructure && npm test", "Verify all 15 tests pass"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "DynamoDB table has correct key schema in template",
+    "steps": ["CDK test: hasResourceProperties AWS::DynamoDB::Table with PK/SK"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "DynamoDB table has GSI1 and GSI2 defined",
+    "steps": ["CDK test: hasResourceProperties with GSI1 and GSI2"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "Lambda function configured with Node.js 20 runtime",
+    "steps": ["CDK test: Lambda runtime is nodejs20.x, memory 256MB, timeout 30s"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "API Gateway HTTP API has CORS configured",
+    "steps": ["CDK test: AllowOrigins includes *"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "Stack exports ApiUrl, FrontendBucketName, CloudFrontUrl, TableName outputs",
+    "steps": ["CDK test: hasOutput for each required output"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "Local API server starts and returns seed data",
+    "steps": ["Start local server", "curl http://localhost:4001/announcements", "Verify 15 announcements returned"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "GET /announcements returns all announcements",
+    "steps": ["curl http://localhost:4001/announcements", "Verify response has announcements array"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "GET /announcements?service=Lambda filters correctly",
+    "steps": ["curl http://localhost:4001/announcements?service=Lambda", "Verify only Lambda announcements"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "GET /announcements?search=bedrock searches correctly",
+    "steps": ["curl http://localhost:4001/announcements?search=bedrock", "Verify matching announcements"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "POST /announcements creates a new announcement",
+    "steps": ["curl -X POST with valid body", "Verify 201 response with generated id"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "PUT /announcements/:id updates an announcement",
+    "steps": ["curl -X PUT with update body", "Verify updated fields in response"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "DELETE /announcements/:id removes an announcement",
+    "steps": ["curl -X DELETE", "Verify deleted: true response"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "GET /services returns unique service list",
+    "steps": ["curl http://localhost:4001/services", "Verify services array"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "GET /announcements/:id returns single announcement",
+    "steps": ["curl with valid ID", "Verify full announcement object"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage displays announcement feed with all 15 items",
+    "steps": ["Navigate to /", "Wait for data load", "Verify 15 announcement cards visible"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage shows service filter sidebar on desktop",
+    "steps": ["Navigate to / at 1280px width", "Verify filter sidebar with service list"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Service filter filters announcements by service",
+    "steps": ["Click Lambda in filter", "Verify URL updated with service param"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Announcement card links to detail page",
+    "steps": ["Click an announcement card", "Verify navigation to /announcements/:id"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Detail page shows full announcement with breadcrumbs",
+    "steps": ["Navigate to /announcements/:id", "Verify title, date, summary, breadcrumbs"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin page shows table of all announcements",
+    "steps": ["Navigate to /admin", "Verify table with rows"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin Add New button opens creation form",
+    "steps": ["Click Add New", "Verify form modal opens with empty fields"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin create form validates required fields",
+    "steps": ["Open form", "Submit empty", "Verify validation errors shown"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin can create a new announcement",
+    "steps": ["Fill form with valid data", "Submit", "Verify new row in table"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin edit button opens pre-filled form",
+    "steps": ["Click edit on a row", "Verify form pre-filled with existing data"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin delete button shows confirmation dialog",
+    "steps": ["Click delete on a row", "Verify confirmation modal appears"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Navigation between Feed and Admin works",
+    "steps": ["Click Admin link", "Verify admin page loads", "Click Feed link", "Verify home page loads"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "URL reflects service filter state",
+    "steps": ["Click service filter", "Verify URL contains ?service=Lambda"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Frontend builds successfully for production",
+    "steps": ["Run npm run build --workspace=frontend", "Verify dist/ output"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Homepage has proper AWS-inspired color scheme",
+    "steps": ["Screenshot homepage", "Verify dark navy header, orange accents, light background"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Homepage uses Space Grotesk for headings and DM Sans for body",
+    "steps": ["Inspect font families", "Verify correct typography"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Announcement cards have proper hover effects",
+    "steps": ["Hover over card", "Verify shadow and border color change"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Service badges have correct colors per service",
+    "steps": ["Check badge colors match SERVICE_COLORS constant"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Admin table is properly styled with zebra striping effect",
+    "steps": ["Screenshot admin page", "Verify clean table design"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Loading skeleton animations are smooth",
+    "steps": ["Navigate to page with slow connection", "Verify shimmer animation"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Responsive design works at 375px mobile width",
+    "steps": ["Resize to 375px", "Verify single column layout, no overflow"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Modal forms are properly styled with backdrop",
+    "steps": ["Open create form", "Verify backdrop blur, centered modal"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Page transitions and staggered animations work",
+    "steps": ["Navigate to homepage", "Verify cards animate in with staggered delay"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Header search input has proper focus styling",
+    "steps": ["Focus search input", "Verify orange ring appears"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Empty state has appropriate illustration/icon",
+    "steps": ["Search for non-existent term", "Verify empty state with icon and message"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Detail page has clean layout with breadcrumb navigation",
+    "steps": ["Navigate to detail page", "Verify breadcrumbs and layout"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Toast notifications animate in from the right",
+    "steps": ["Trigger a CRUD action", "Verify toast slides in"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Search from header works on homepage",
+    "steps": ["Type in header search", "Verify results filter"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin can delete an announcement and it disappears from table",
+    "steps": ["Click delete", "Confirm", "Verify row removed"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Admin can update an announcement",
+    "steps": ["Edit title", "Submit", "Verify updated in table"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Mobile filter button shows on small screens",
+    "steps": ["Resize to mobile", "Verify Filter button visible, sidebar hidden"],
+    "passes": true
+  }
+]
