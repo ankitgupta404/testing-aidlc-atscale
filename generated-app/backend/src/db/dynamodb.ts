@@ -49,6 +49,8 @@ export async function putAnnouncement(announcement: Announcement): Promise<void>
       Item: {
         ...keys,
         ...announcement,
+        titleLower: announcement.title.toLowerCase(),
+        summaryLower: announcement.summary.toLowerCase(),
       },
     })
   );

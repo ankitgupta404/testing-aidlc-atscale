@@ -18,11 +18,11 @@ test.describe("Admin Page", () => {
     await page.waitForLoadState("networkidle");
 
     await page.click("button:has-text('Add New')");
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
-    // Form should be visible
-    await expect(page.locator("text=New Announcement")).toBeVisible();
-    await expect(page.locator("input[placeholder*='Lambda']")).toBeVisible();
+    // Form should be visible - the h2 inside modal
+    await expect(page.locator("h2:has-text('New Announcement')")).toBeVisible();
+    await expect(page.locator("input[placeholder*='AWS Lambda']")).toBeVisible();
   });
 
   test("create form validates required fields", async ({ page }) => {
@@ -48,15 +48,16 @@ test.describe("Admin Page", () => {
     await page.waitForTimeout(300);
 
     // Fill form
-    await page.fill("input[placeholder*='Lambda']", "Test New Announcement");
-    await page.fill("textarea", "This is a test announcement summary for testing purposes.");
+    await page.fill("input[placeholder*='AWS Lambda']", "E2E Test Created Announcement");
+    await page.fill("textarea", "This is a test announcement summary created during e2e testing.");
 
     // Submit
     await page.click("button:has-text('Create Announcement')");
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle");
 
     // Should close modal and show in table
-    await expect(page.locator("text=Test New Announcement")).toBeVisible();
+    await expect(page.locator("text=E2E Test Created Announcement").first()).toBeVisible();
   });
 
   test("edit button opens pre-filled form", async ({ page }) => {
