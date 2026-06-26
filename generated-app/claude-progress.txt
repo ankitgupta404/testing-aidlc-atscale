@@ -1,0 +1,87 @@
+# AWS News Hub - Progress Tracking
+
+## Current State: Phase 3 Complete (Frontend + Local API)
+
+### Completed Phases:
+
+#### Phase 1: Shared Contract ✅
+- Zod schemas in shared/src/schemas.ts (all types defined)
+- Exports: AnnouncementSchema, CreateAnnouncementInputSchema, UpdateAnnouncementInputSchema,
+  ListAnnouncementsQuerySchema, AnnouncementListResponseSchema, ServicesResponseSchema
+- TypeScript compilation: PASSING
+- Package build: PASSING (emits to dist/)
+
+#### Phase 2a: Infrastructure (CDK) ✅
+- CDK stack: infrastructure/lib/aws-news-hub-stack.ts
+- Resources: DynamoDB (single-table, 2 GSIs), Lambda (Node.js 20, 256MB),
+  API Gateway HTTP API, S3 + CloudFront for frontend
+- CDK synth: PASSING
+- CDK tests: 15/15 PASSING (snapshot + assertions)
+- All resources prefixed with canopy-*
+- Outputs: ApiUrl, FrontendBucketName, CloudFrontUrl, TableName, DistributionId
+
+#### Phase 2b: Backend Implementation ✅
+- Lambda handler: backend/src/index.ts (custom router, no Express)
+- Routes: CRUD for /announcements, GET /services
+- DynamoDB access: backend/src/db/dynamodb.ts (single-table design)
+- Seed script: backend/src/seed.ts (15 sample announcements)
+- Local development server: backend/src/local-server.ts (in-memory, port 4001)
+- Backend TypeScript compilation: PASSING
+- All API endpoints tested and working
+
+#### Phase 3: Frontend ✅
+- React 18 + TypeScript + Vite 6 + Tailwind CSS v4
+- Pages: HomePage, DetailPage, AdminPage
+- Components: Header, ServiceFilter, AnnouncementCard, AnnouncementForm,
+  DeleteConfirmation, EmptyState, LoadingState, ServiceBadge, Toast, Layout
+- API Client: fetch-based with React Query hooks (infinite scroll, mutations)
+- Design: Space Grotesk (display) + DM Sans (body) + JetBrains Mono (mono)
+- Animations: staggered reveal, slide-in, skeleton shimmer, toast slide
+- Responsive: mobile-first with filter bottom sheet
+- Frontend build: PASSING (dist/ ~343kb JS + 31kb CSS)
+- VITE_API_URL wired to http://localhost:4001
+
+### Infrastructure Deployment Status: NOT DEPLOYED
+- CI/CD has NOT deployed the CDK stack
+- CloudFormation stack `canopy-aws-news-hub-stack` does NOT exist
+- DynamoDB table `canopy-aws-news-table` does NOT exist
+- Lambda function `canopy-aws-news-api` does NOT exist
+- The app works fully with the local API server (backend/src/local-server.ts)
+- When CI/CD deploys, update frontend/.env VITE_API_URL to the API Gateway endpoint
+
+### Test Results:
+- E2E tests (Playwright): 13/13 PASSING
+- CDK tests (Jest): 15/15 PASSING
+- Backend API tests: All PASSING (via curl against local server)
+- Frontend TypeScript: PASSING
+- Frontend build: PASSING
+
+### How to Start Development:
+```bash
+cd /app/workspace/agent-runtime/generated-app
+./init.sh
+# OR manually:
+npx tsx backend/src/local-server.ts &  # starts API on port 4001
+cd frontend && npx vite --port 6174    # starts frontend on port 6174
+```
+
+### File Structure:
+```
+generated-app/
+├── package.json (npm workspaces root)
+├── shared/ (Zod schemas - source of truth)
+├── backend/ (Lambda handlers + local dev server)
+├── infrastructure/ (CDK stack + tests)
+├── frontend/ (React SPA)
+├── e2e-tests/ (Playwright tests)
+├── init.sh (start dev environment)
+└── tests.json (test tracking)
+```
+
+### What's Left / Next Steps:
+1. Wait for CI/CD to deploy infrastructure, then:
+   - Update frontend/.env with real API URL
+   - Run seed script against deployed DynamoDB
+   - Verify deployed Lambda endpoints with curl
+2. Minor polish: dark theme toggle (optional)
+3. Performance: lazy loading routes (optional)
