@@ -77,6 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
           RESUME_SESSION: ${{ github.event.inputs.resume_session || 'false' }}
+          FORCE_REBUILD: ${{ github.event.inputs.force_rebuild || 'false' }}
           AUTHORIZED_APPROVERS: ${{ vars.AUTHORIZED_APPROVERS }}
         run: |
           python << 'EOF'
@@ -92,6 +93,7 @@ jobs:
 
           # Check if this is a resume request (skip label checks)
           resume_session = os.environ.get("RESUME_SESSION", "false").lower() == "true"
+          force_rebuild = os.environ.get("FORCE_REBUILD", "false").lower() == "true"
 
           gh = Github(os.environ["GITHUB_TOKEN"])
           repo = gh.get_repo(os.environ["GITHUB_REPOSITORY"])
@@ -132,15 +134,15 @@ jobs:
 
           # Check if THIS issue already has building or complete label
           labels = [l.name for l in issue.labels]
-          if LABEL_BUILDING in labels:
+          if LABEL_BUILDING in labels and not force_rebuild:
               print(f"Issue #{issue_number} is already being built")
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                   f.write("should_build=false\n")
                   f.write("should_invoke=false\n")
               exit(0)
 
-          if "agent-complete" in labels:
-              print(f"Issue #{issue_number} is already complete")
+          if "agent-complete" in labels and not force_rebuild:
+              print(f"Issue #{issue_number} is already complete (use force_rebuild to override)")
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                   f.write("should_build=false\n")
                   f.write("should_invoke=false\n")
