@@ -1,9 +1,8 @@
 name: Deploy Infrastructure
 
 on:
-  push:
-    branches: [agent-runtime]
-    paths: ['generated-app/infrastructure/**']
+  # Only triggered manually or by the deploy-approval poller
+  # No longer auto-triggers on push to agent-runtime
   workflow_dispatch:
     inputs:
       issue_number:
