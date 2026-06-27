@@ -1,0 +1,88 @@
+name: Run Tests (Sandbox)
+
+# Triggered when the builder agent completes (agent-complete label added)
+# or manually for re-testing
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to test'
+        required: true
+        type: number
+
+permissions:
+  issues: write
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  TEST_AGENT_ID: ${{ vars.TEST_AGENT_ID }}
+
+jobs:
+  invoke-test-agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_AGENTCORE_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install boto3 --upgrade -q
+
+      - name: Invoke Test Agent
+        id: invoke
+        env:
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number }}
+        run: |
+          SESSION_ID="test-issue-${ISSUE_NUMBER}-$(date +%Y%m%d-%H%M%S)-${GITHUB_RUN_ID}"
+          echo "session_id=$SESSION_ID" >> $GITHUB_OUTPUT
+
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          TEST_AGENT_ARN="arn:aws:bedrock-agentcore:${AWS_REGION}:${AWS_ACCOUNT_ID}:runtime/${TEST_AGENT_ID}"
+
+          PAYLOAD=$(jq -nc \
+            --arg mode "test" \
+            --argjson issue_number "$ISSUE_NUMBER" \
+            --arg github_repo "${{ github.repository }}" \
+            --arg branch "agent-runtime" \
+            '{mode: $mode, issue_number: $issue_number, github_repo: $github_repo, branch: $branch}')
+
+          echo "Invoking test agent:"
+          echo "  ARN: $TEST_AGENT_ARN"
+          echo "  Session: $SESSION_ID"
+          echo "  Payload: $PAYLOAD"
+
+          python3 .github/scripts/invoke_agent.py \
+            --agent-arn "$TEST_AGENT_ARN" \
+            --session-id "$SESSION_ID" \
+            --payload "$PAYLOAD" \
+            --region "${AWS_REGION}"
+
+      - name: Post test trigger comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number }}
+          SESSION_ID: ${{ steps.invoke.outputs.session_id }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "🧪 **Test Agent Started**
+
+          | Field | Value |
+          |-------|-------|
+          | **Session** | \`$SESSION_ID\` |
+          | **Workflow** | [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
+
+          The test agent is running the application in an isolated sandbox and executing integration, security, and quality tests. Results will be posted here."
