@@ -362,3 +362,112 @@ jobs:
             -f force_rebuild=true
 
           echo "✅ Triggered agent-builder for issue #$ISSUE_NUMBER (Phase 2: build from plan)"
+
+
+  # Job 4: Check for deploy-approved issues (tests passed + 🚀 on results comment)
+  # After tests pass, the approver must add 🚀 to the test results comment to trigger deploy.
+  check-deploy-approvals:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install PyGithub
+
+      - name: Check for deploy-approved issues
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTHORIZED_APPROVERS: ${{ vars.AUTHORIZED_APPROVERS }}
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          from github import Github
+
+          GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+          _approvers_env = os.environ.get("AUTHORIZED_APPROVERS", "")
+          AUTHORIZED_APPROVERS = set(a.strip() for a in _approvers_env.split(",") if a.strip())
+
+          gh = Github(GITHUB_TOKEN)
+          repo = gh.get_repo(os.environ["GITHUB_REPOSITORY"])
+
+          # Find issues with tests-passed label (ready for deploy approval)
+          passed_issues = list(repo.get_issues(state='open', labels=['tests-passed']))
+
+          if not passed_issues:
+              print("📭 No tests-passed issues found")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("has_deploy_approval=false\n")
+              exit(0)
+
+          for issue in passed_issues:
+              labels = [l.name for l in issue.labels]
+              # Skip if already deploying or deployed
+              if "agent-building" in labels or "agent-complete" in labels:
+                  continue
+
+              # Find the test results comment
+              test_comment = None
+              for comment in issue.get_comments():
+                  body = comment.body or ""
+                  if "**Test Results**" in body and ("All Passed" in body or "To deploy" in body):
+                      test_comment = comment
+                      break
+
+              if not test_comment:
+                  continue
+
+              # Check for 🚀 reaction from authorized approver
+              approved = False
+              for reaction in test_comment.get_reactions():
+                  if reaction.content == "rocket" and reaction.user.login in AUTHORIZED_APPROVERS:
+                      approved = True
+                      print(f"✅ Issue #{issue.number}: Deploy approved by {reaction.user.login}")
+                      break
+
+              if not approved:
+                  print(f"⏳ Issue #{issue.number}: Tests passed, awaiting deploy approval (🚀)")
+                  continue
+
+              # Deploy approved!
+              print(f"🚀 Issue #{issue.number}: Deploy approved — triggering deployment")
+
+              # Remove tests-passed label, add deploying indicator
+              try:
+                  issue.remove_from_labels("tests-passed")
+              except Exception:
+                  pass
+
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write(f"deploy_issue={issue.number}\n")
+                  f.write("has_deploy_approval=true\n")
+              break
+          else:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("has_deploy_approval=false\n")
+          EOF
+
+      - name: Trigger deploy workflows
+        if: steps.check.outputs.has_deploy_approval == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.check.outputs.deploy_issue }}
+        run: |
+          echo "🚀 Triggering deploy for issue #$ISSUE_NUMBER"
+
+          # Trigger infrastructure deploy
+          gh workflow run deploy-infrastructure.yml \
+            -R ${{ github.repository }} \
+            -f issue_number=$ISSUE_NUMBER
+
+          # Trigger preview deploy
+          gh workflow run deploy-preview.yml \
+            -R ${{ github.repository }} \
+            -f issue_number=$ISSUE_NUMBER
+
+          echo "✅ Deploy workflows triggered for issue #$ISSUE_NUMBER"
