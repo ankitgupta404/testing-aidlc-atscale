@@ -7,18 +7,13 @@ on:
       issue_number:
         type: string
         required: false
-  # Triggered by harness when issue is complete
+  # Triggered manually or by deploy-approval poller
   workflow_dispatch:
     inputs:
       issue_number:
         description: 'Issue number that was completed'
         required: false
         default: ''
-  # Deploy on push to agent-runtime branch
-  push:
-    branches:
-      - 'agent-runtime'
-      - 'issue-*'  # Keep legacy support
     paths:
       - 'generated-app/**'
 
