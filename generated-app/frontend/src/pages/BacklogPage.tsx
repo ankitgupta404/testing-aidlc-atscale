@@ -79,9 +79,17 @@ export default function BacklogPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search issues..."
+            data-testid="backlog-search"
             className="w-full pl-9 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-400"
           />
         </div>
+        <button
+          data-testid="create-issue-btn"
+          className="flex items-center gap-2 bg-forest-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-800 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Create Issue
+        </button>
       </div>
 
       {/* Sprint Sections */}

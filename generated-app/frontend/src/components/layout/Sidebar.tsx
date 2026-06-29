@@ -23,7 +23,7 @@ export default function Sidebar() {
   ] : [];
 
   return (
-    <aside className="w-[260px] bg-forest-900 text-white flex flex-col animate-slide-left">
+    <aside data-testid="sidebar" className="w-[260px] bg-forest-900 text-white flex flex-col animate-slide-left">
       {/* Logo */}
       <div className="flex items-center gap-3 p-5 border-b border-forest-800">
         <div className="w-8 h-8 bg-forest-200 rounded-lg flex items-center justify-center">
