@@ -42,6 +42,7 @@ export class CanopyStack extends cdk.Stack {
     // Lambda Function
     const backendEntry = path.join(__dirname, '../../backend/src/index.ts');
     const sharedSrc = path.resolve(__dirname, '../../shared/src/index.ts');
+    const projectRoot = path.resolve(__dirname, '../..');
 
     const apiHandler = new NodejsFunction(this, 'CanopyApiHandler', {
       functionName: 'canopy-ankit-aidlc-testing-canopy-api',
@@ -50,7 +51,7 @@ export class CanopyStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       entry: backendEntry,
       handler: 'handler',
-      projectRoot: path.join(__dirname, '../..'),
+      projectRoot,
       depsLockFilePath: path.join(__dirname, '../../package-lock.json'),
       environment: {
         TABLE_NAME: table.tableName,
@@ -63,6 +64,20 @@ export class CanopyStack extends cdk.Stack {
         tsconfig: path.join(__dirname, '../../backend/tsconfig.json'),
         esbuildArgs: {
           '--alias:@canopy/shared': sharedSrc,
+        },
+        commandHooks: {
+          beforeBundling(inputDir: string): string[] {
+            // Install zod in the project root so esbuild can find it
+            return [
+              `cd "${inputDir}" && npm install zod@3.23.8 --no-save 2>/dev/null || true`,
+            ];
+          },
+          afterBundling(): string[] {
+            return [];
+          },
+          beforeInstall(): string[] {
+            return [];
+          },
         },
       },
     });
