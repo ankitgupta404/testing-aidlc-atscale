@@ -28,11 +28,12 @@ test.describe('Navigation', () => {
   });
 
   test('can navigate to sprints page', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto(`${BASE_URL}/projects/11111111-1111-1111-1111-111111111111/sprints`);
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
 
-    await page.click('text=Sprints');
-    await expect(page.locator('text=active')).toBeVisible();
+    await expect(page.locator('h1:has-text("Sprints")')).toBeVisible();
+    await expect(page.locator('text=Sprint 2')).toBeVisible();
   });
 
   test('can navigate to projects page', async ({ page }) => {
