@@ -13,9 +13,9 @@ const ProjectContext = createContext<ProjectContextType>({
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [currentProjectId, setCurrentProjectId] = useState<string | undefined>(() => {
-    // Try to restore from localStorage
+    // Try to restore from localStorage, fallback to seeded project
     const saved = localStorage.getItem('canopy:currentProjectId');
-    return saved || undefined;
+    return saved || '11111111-1111-1111-1111-111111111111';
   });
 
   const { data: projects } = useProjects();
