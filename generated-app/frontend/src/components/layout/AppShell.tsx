@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 export default function AppShell() {
+  useKeyboardShortcuts();
+
   return (
     <div className="flex h-screen overflow-hidden bg-forest-50">
       <Sidebar />

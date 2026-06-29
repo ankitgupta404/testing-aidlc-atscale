@@ -28,6 +28,7 @@ export default function Header() {
           <input
             type="text"
             placeholder="Search issues..."
+            data-search-input
             className="pl-9 pr-4 py-1.5 bg-forest-50 border border-border rounded-lg text-sm w-56 focus:outline-none focus:ring-2 focus:ring-forest-400 focus:border-transparent transition-all"
           />
         </div>

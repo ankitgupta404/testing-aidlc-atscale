@@ -111,6 +111,22 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px;
 }
 
+/* Dark mode */
+.dark body {
+  background-color: #0f1a14;
+  color: #e4e4e7;
+}
+
+.dark .bg-surface { background-color: #1a2e22; }
+.dark .bg-forest-50 { background-color: #0f1a14; }
+.dark .bg-forest-100 { background-color: #1a2e22; }
+.dark .border-border { border-color: #2d4a38; }
+.dark .text-text-primary { color: #e4e4e7; }
+.dark .text-text-secondary { color: #a1a1aa; }
+.dark .text-text-muted { color: #71717a; }
+.dark .hover\:bg-forest-50:hover { background-color: #1a2e22; }
+.dark .hover\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3); }
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
