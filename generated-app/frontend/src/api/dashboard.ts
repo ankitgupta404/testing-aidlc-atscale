@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import api from './client';
+import api, { isApiConfigured } from './client';
 import { getMockDashboardStats } from './mockData';
 import type { DashboardStats, BurndownDataPoint, VelocityDataPoint } from '@canopy/shared';
 
 async function fetchDashboard(projectId: string): Promise<DashboardStats> {
+  if (!isApiConfigured) return getMockDashboardStats(projectId);
   try {
     const res = await api.get<{ stats: DashboardStats }>(`/api/projects/${projectId}/dashboard`);
     return res.stats;

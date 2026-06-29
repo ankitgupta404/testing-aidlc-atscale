@@ -1,14 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from './client';
-import { mockEpics } from './mockData';
+import api, { isApiConfigured } from './client';
+import { localStore } from './localStore';
 import type { Epic, CreateEpicInput, UpdateEpicInput } from '@canopy/shared';
 
 async function fetchEpics(projectId: string): Promise<Epic[]> {
+  if (!isApiConfigured) return localStore.getEpics(projectId);
   try {
     const res = await api.get<{ epics: Epic[] }>(`/api/projects/${projectId}/epics`);
     return res.epics;
   } catch {
-    return mockEpics[projectId] || [];
+    return localStore.getEpics(projectId);
   }
 }
 
