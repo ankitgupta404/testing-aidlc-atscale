@@ -57,20 +57,44 @@ router.add('GET', '/api/projects/:projectId/velocity', boardHandlers.velocity);
 // Seed
 router.add('POST', '/api/seed', seedHandler);
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Requested-With',
+  'Access-Control-Max-Age': '86400',
+};
+
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const method = event.requestContext.http.method;
   const path = event.rawPath;
 
   console.log(`${method} ${path}`);
 
+  // Handle CORS preflight
+  if (method === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: '',
+    };
+  }
+
   try {
     const result = await router.resolve(method, path, event);
-    return result;
+    // Add CORS headers to all responses
+    const response = typeof result === 'object' ? result : { statusCode: 200, body: '' };
+    return {
+      ...response,
+      headers: {
+        ...CORS_HEADERS,
+        ...(response as any).headers,
+      },
+    };
   } catch (error) {
     console.error('Unhandled error:', error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
       body: JSON.stringify({
         error: {
           code: 'INTERNAL_ERROR',

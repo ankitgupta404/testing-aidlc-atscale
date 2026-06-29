@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useProjects } from '../api/projects';
 
 interface ProjectContextType {
   currentProjectId: string | undefined;
@@ -6,14 +7,32 @@ interface ProjectContextType {
 }
 
 const ProjectContext = createContext<ProjectContextType>({
-  currentProjectId: '11111111-1111-1111-1111-111111111111',
+  currentProjectId: undefined,
   setCurrentProjectId: () => {},
 });
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
-  const [currentProjectId, setCurrentProjectId] = useState<string | undefined>(
-    '11111111-1111-1111-1111-111111111111'
-  );
+  const [currentProjectId, setCurrentProjectId] = useState<string | undefined>(() => {
+    // Try to restore from localStorage
+    const saved = localStorage.getItem('canopy:currentProjectId');
+    return saved || undefined;
+  });
+
+  const { data: projects } = useProjects();
+
+  // Auto-select first project if none is selected
+  useEffect(() => {
+    if (!currentProjectId && projects && projects.length > 0) {
+      setCurrentProjectId(projects[0].id);
+    }
+  }, [currentProjectId, projects]);
+
+  // Persist selection
+  useEffect(() => {
+    if (currentProjectId) {
+      localStorage.setItem('canopy:currentProjectId', currentProjectId);
+    }
+  }, [currentProjectId]);
 
   return (
     <ProjectContext.Provider value={{ currentProjectId, setCurrentProjectId }}>
