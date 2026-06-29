@@ -40,13 +40,17 @@ export class CanopyStack extends cdk.Stack {
     });
 
     // Lambda Function
+    const backendEntry = path.join(__dirname, '../../backend/src/index.ts');
+    const sharedSrc = path.resolve(__dirname, '../../shared/src/index.ts');
+
     const apiHandler = new NodejsFunction(this, 'CanopyApiHandler', {
       functionName: 'canopy-ankit-aidlc-testing-canopy-api',
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
-      entry: path.join(__dirname, '../../backend/src/index.ts'),
+      entry: backendEntry,
       handler: 'handler',
+      projectRoot: path.join(__dirname, '../..'),
       depsLockFilePath: path.join(__dirname, '../../package-lock.json'),
       environment: {
         TABLE_NAME: table.tableName,
@@ -56,6 +60,10 @@ export class CanopyStack extends cdk.Stack {
         externalModules: ['@aws-sdk/*'],
         minify: true,
         sourceMap: true,
+        tsconfig: path.join(__dirname, '../../backend/tsconfig.json'),
+        esbuildArgs: {
+          '--alias:@canopy/shared': sharedSrc,
+        },
       },
     });
 
