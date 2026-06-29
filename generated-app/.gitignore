@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.js.map
+*.d.ts
+!vite.config.ts
+cdk.out/
+
+# Environment
+.env
+.env.local
+*.local
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.sw?
+
+# Test artifacts
+screenshots/
+
+# CDK
+cdk.context.json

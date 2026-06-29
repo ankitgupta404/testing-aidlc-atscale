@@ -1,0 +1,21 @@
+{
+  "name": "@canopy/infrastructure",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "synth": "npx cdk synth"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.150.0",
+    "constructs": "^10.3.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
+    "tsx": "^4.16.0",
+    "typescript": "~5.8.3"
+  }
+}
