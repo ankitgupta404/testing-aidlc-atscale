@@ -271,7 +271,7 @@ jobs:
 
           The agent is now building this feature. Progress will be posted here.
 
-          Commits will be pushed to branch \`agent-runtime\`."
+          Commits will be pushed to branch \`issue-${ISSUE_NUMBER}\`."
           else
             # Queued case: acquire-runtime-lock didn't run, so we need to set the label here
             gh issue edit $ISSUE_NUMBER --add-label "agent-building" --repo $GITHUB_REPOSITORY
@@ -282,7 +282,7 @@ jobs:
 
           An agent session is already running. This issue has been added to the queue and will be picked up automatically when the current issue completes.
 
-          Commits will be pushed to branch \`agent-runtime\`."
+          Commits will be pushed to branch \`issue-${ISSUE_NUMBER}\`."
           fi
 
   # Invoke AWS Bedrock AgentCore to build the feature
@@ -357,7 +357,7 @@ jobs:
             "issue_title": "$ISSUE_TITLE",
             "issue_body": $(echo "$DECODED_BODY" | jq -Rs .),
             "github_repo": "$GITHUB_REPOSITORY",
-            "branch_name": "agent-runtime",
+            "branch_name": "issue-${ISSUE_NUMBER}",
             "session_id": "$SESSION_ID",
             "resume_session": $RESUME_FLAG
           }
