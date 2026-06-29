@@ -41,7 +41,6 @@ export class CanopyStack extends cdk.Stack {
 
     // Lambda Function
     const backendEntry = path.join(__dirname, '../../backend/src/index.ts');
-    const sharedSrc = path.resolve(__dirname, '../../shared/src/index.ts');
     const projectRoot = path.resolve(__dirname, '../..');
 
     const apiHandler = new NodejsFunction(this, 'CanopyApiHandler', {
@@ -61,15 +60,12 @@ export class CanopyStack extends cdk.Stack {
         externalModules: ['@aws-sdk/*'],
         minify: true,
         sourceMap: true,
-        tsconfig: path.join(__dirname, '../../backend/tsconfig.json'),
-        esbuildArgs: {
-          '--alias:@canopy/shared': sharedSrc,
-        },
         commandHooks: {
           beforeBundling(inputDir: string): string[] {
-            // Install zod in the project root so esbuild can find it
+            // Ensure @canopy/shared and zod are resolvable by esbuild in CI
             return [
-              `cd "${inputDir}" && npm install zod@3.23.8 --no-save 2>/dev/null || true`,
+              `cd "${inputDir}" && mkdir -p node_modules/@canopy && rm -rf node_modules/@canopy/shared && ln -sf ../../shared node_modules/@canopy/shared`,
+              `cd "${inputDir}" && ([ -d node_modules/zod ] || npm install zod@3.23.8 --no-save --ignore-scripts 2>/dev/null || true)`,
             ];
           },
           afterBundling(): string[] {
