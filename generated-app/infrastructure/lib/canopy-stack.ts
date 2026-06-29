@@ -62,10 +62,11 @@ export class CanopyStack extends cdk.Stack {
         sourceMap: true,
         commandHooks: {
           beforeBundling(inputDir: string): string[] {
-            // Ensure @canopy/shared and zod are resolvable by esbuild in CI
+            // In CI, esbuild needs to resolve @canopy/shared and zod.
+            // Create node_modules structure so esbuild can find them.
             return [
-              `cd "${inputDir}" && mkdir -p node_modules/@canopy && rm -rf node_modules/@canopy/shared && ln -sf ../../shared node_modules/@canopy/shared`,
-              `cd "${inputDir}" && ([ -d node_modules/zod ] || npm install zod@3.23.8 --no-save --ignore-scripts 2>/dev/null || true)`,
+              `cd "${inputDir}" && mkdir -p node_modules/@canopy/shared && cp -r shared/src/* node_modules/@canopy/shared/ && echo '{"name":"@canopy/shared","main":"index.ts","types":"index.ts"}' > node_modules/@canopy/shared/package.json`,
+              `cd "${inputDir}" && ([ -d node_modules/zod ] || npm install --prefix . zod@3.23.8 --no-save --ignore-scripts 2>/dev/null || true)`,
             ];
           },
           afterBundling(): string[] {
