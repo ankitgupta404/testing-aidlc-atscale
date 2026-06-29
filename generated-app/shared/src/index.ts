@@ -52,5 +52,9 @@ export {
   VelocityDataPointSchema,
 } from './schemas/board';
 
+// Endpoint map
+export { ENDPOINTS } from './endpoints';
+export type { EndpointMap } from './endpoints';
+
 // Type exports
 export type * from './types/index';
