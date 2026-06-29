@@ -9,5 +9,8 @@
     "test:infra": "cd infrastructure && npm test",
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "cd frontend && npm run dev"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1"
   }
 }
