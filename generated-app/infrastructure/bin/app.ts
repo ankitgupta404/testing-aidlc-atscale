@@ -5,7 +5,7 @@ import { CanopyStack } from '../lib/canopy-stack';
 const app = new cdk.App();
 new CanopyStack(app, 'AnkitAidlcTestingCanopyStack', {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION || 'us-east-1',
+    account: '239055859299',
+    region: 'us-east-1',
   },
 });

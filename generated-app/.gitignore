@@ -6,6 +6,7 @@ dist/
 *.js.map
 *.d.ts
 !vite.config.ts
+!**/vite-env.d.ts
 cdk.out/
 
 # Environment
