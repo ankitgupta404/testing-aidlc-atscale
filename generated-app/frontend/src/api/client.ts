@@ -1,5 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
+export const isApiConfigured = !!API_BASE;
+
 interface ApiError {
   error: {
     code: string;
@@ -16,6 +18,9 @@ class ApiClient {
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    if (!this.baseUrl) {
+      throw new Error('API not configured');
+    }
     const url = `${this.baseUrl}${path}`;
 
     const response = await fetch(url, {
