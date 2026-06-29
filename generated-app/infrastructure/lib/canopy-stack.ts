@@ -51,7 +51,7 @@ export class CanopyStack extends cdk.Stack {
       entry: backendEntry,
       handler: 'handler',
       projectRoot,
-      depsLockFilePath: path.join(__dirname, '../../package-lock.json'),
+      depsLockFilePath: path.join(__dirname, '../package-lock.json'),
       environment: {
         TABLE_NAME: table.tableName,
         NODE_OPTIONS: '--enable-source-maps',
@@ -61,12 +61,20 @@ export class CanopyStack extends cdk.Stack {
         minify: true,
         sourceMap: true,
         commandHooks: {
-          beforeBundling(inputDir: string): string[] {
-            // In CI, esbuild needs to resolve @canopy/shared and zod.
-            // Create node_modules structure so esbuild can find them.
+          beforeBundling(inputDir: string, outputDir: string): string[] {
+            // inputDir is the projectRoot (generated-app/).
+            // In CI, only infrastructure/node_modules exists (from npm ci).
+            // CDK runs `npx --no-install esbuild` from projectRoot, so we need
+            // esbuild, @canopy/shared, and zod in projectRoot/node_modules.
             return [
-              `cd "${inputDir}" && mkdir -p node_modules/@canopy/shared && cp -r shared/src/* node_modules/@canopy/shared/ && echo '{"name":"@canopy/shared","main":"index.ts","types":"index.ts"}' > node_modules/@canopy/shared/package.json`,
-              `cd "${inputDir}" && ([ -d node_modules/zod ] || npm install --prefix . zod@3.23.8 --no-save --ignore-scripts 2>/dev/null || true)`,
+              // Create node_modules structure at project root
+              `cd "${inputDir}" && mkdir -p node_modules/.bin node_modules/@esbuild`,
+              // Copy esbuild from infrastructure if not present at root
+              `cd "${inputDir}" && [ -f node_modules/.bin/esbuild ] || (cp -rL infrastructure/node_modules/esbuild node_modules/esbuild 2>/dev/null && cp -rL infrastructure/node_modules/@esbuild/* node_modules/@esbuild/ 2>/dev/null && ln -sf ../esbuild/bin/esbuild node_modules/.bin/esbuild) || true`,
+              // Copy @canopy/shared from source
+              `cd "${inputDir}" && rm -rf node_modules/@canopy/shared && mkdir -p node_modules/@canopy/shared && cp -r shared/src/* node_modules/@canopy/shared/ && echo '{"name":"@canopy/shared","version":"1.0.0","main":"index.ts","types":"index.ts"}' > node_modules/@canopy/shared/package.json`,
+              // Copy zod from infrastructure if not present at root
+              `cd "${inputDir}" && [ -d node_modules/zod ] || cp -rL infrastructure/node_modules/zod node_modules/zod 2>/dev/null || true`,
             ];
           },
           afterBundling(): string[] {
