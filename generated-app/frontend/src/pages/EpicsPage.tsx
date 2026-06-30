@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, X, Hexagon } from '../components/icons';
 import { useEpics, useCreateEpic } from '../api/epics';
+import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';
 import { DEFAULT_PROJECT_ID } from '../utils/constants';
 import { cn } from '../utils/helpers';
-import type { Epic, EpicStatus } from '@canopy/shared';
+import type { Epic, EpicStatus, Issue } from '@canopy/shared';
 
 const EPIC_STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
@@ -32,9 +33,24 @@ export function EpicsPage() {
   const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
 
   const { data: epicsData, isLoading } = useEpics(projectId);
+  const { data: issuesData } = useIssues(projectId);
   const createEpicMutation = useCreateEpic();
 
   const epics = epicsData || [];
+  const issues = issuesData || [];
+
+  // Calculate progress for each epic
+  const epicProgress = useMemo(() => {
+    const progress: Record<string, { total: number; done: number }> = {};
+    issues.forEach((issue: Issue) => {
+      if (issue.epicId) {
+        if (!progress[issue.epicId]) progress[issue.epicId] = { total: 0, done: 0 };
+        progress[issue.epicId].total++;
+        if (issue.status === 'done') progress[issue.epicId].done++;
+      }
+    });
+    return progress;
+  }, [issues]);
 
   // Modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -103,8 +119,8 @@ export function EpicsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {epics.map((epic: Epic) => {
-            // Mock progress - 60% for demo
-            const progress = 60;
+            const ep = epicProgress[epic.id] || { total: 0, done: 0 };
+            const progress = ep.total > 0 ? Math.round((ep.done / ep.total) * 100) : 0;
             return (
               <div
                 key={epic.id}
@@ -126,7 +142,7 @@ export function EpicsPage() {
                     {/* Progress bar */}
                     <div className="mb-2">
                       <div className="flex items-center justify-between text-xs text-bark-500 mb-1">
-                        <span>Progress</span>
+                        <span>{ep.done}/{ep.total} issues done</span>
                         <span>{progress}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-bark-100 rounded-full overflow-hidden">
