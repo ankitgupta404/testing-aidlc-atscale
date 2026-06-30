@@ -286,11 +286,26 @@ export function BoardPage() {
   if (isLoading) {
     return (
       <div className="max-w-full mx-auto animate-fade-in">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 border-2 border-canopy-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-bark-500 text-sm">Loading board...</span>
-          </div>
+        <div className="mb-5">
+          <div className="h-7 w-24 bg-bark-200 rounded animate-pulse" />
+          <div className="h-4 w-44 bg-bark-100 rounded animate-pulse mt-2" />
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {[0, 1, 2, 3, 4].map(i => (
+            <div key={i} className="flex-shrink-0 w-[240px] xl:w-[260px] bg-bark-50/80 rounded-xl border border-bark-200 animate-pulse" style={{ animationDelay: `${i * 80}ms` }}>
+              <div className="px-4 py-3 border-b border-bark-200">
+                <div className="h-4 w-20 bg-bark-200 rounded" />
+              </div>
+              <div className="p-2.5 space-y-2">
+                {Array.from({ length: 2 + (i % 3) }, (_, j) => (
+                  <div key={j} className="bg-white rounded-lg border border-bark-200 p-3 h-20">
+                    <div className="h-3 w-12 bg-bark-100 rounded mb-2" />
+                    <div className="h-4 w-full bg-bark-100 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -365,12 +380,13 @@ export function BoardPage() {
         onDragCancel={handleDragCancel}
       >
         <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: '500px' }}>
-          {BOARD_COLUMNS.map(col => (
+          {BOARD_COLUMNS.map((col, idx) => (
             <BoardColumn
               key={col.status}
               column={col}
               issues={columnIssues[col.status] || []}
               onCardClick={(issue) => navigate(`/issues/${issue.key}`)}
+              animationDelay={idx * 60}
             />
           ))}
         </div>
@@ -395,9 +411,10 @@ interface BoardColumnProps {
   column: { status: IssueStatus; label: string; color: string };
   issues: Issue[];
   onCardClick: (issue: Issue) => void;
+  animationDelay?: number;
 }
 
-function BoardColumn({ column, issues, onCardClick }: BoardColumnProps) {
+function BoardColumn({ column, issues, onCardClick, animationDelay = 0 }: BoardColumnProps) {
   const { setNodeRef } = useSortable({
     id: column.status,
     data: { type: 'column', status: column.status },
@@ -406,7 +423,8 @@ function BoardColumn({ column, issues, onCardClick }: BoardColumnProps) {
   return (
     <div
       ref={setNodeRef}
-      className="flex-shrink-0 w-[240px] xl:w-[260px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col"
+      className="flex-shrink-0 w-[240px] xl:w-[260px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col animate-column-in"
+      style={{ animationDelay: `${animationDelay}ms` }}
     >
       {/* Column header */}
       <div className="px-4 py-3 border-b border-bark-200">

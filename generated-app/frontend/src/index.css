@@ -68,8 +68,20 @@ h1, h2, h3, h4, h5, h6 {
 .dark .text-bark-500 { color: #7a7a7a !important; }
 .dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
 .dark header { background-color: rgba(26, 27, 30, 0.8) !important; border-color: #373a40 !important; }
-.dark input, .dark textarea { background-color: #2c2e33 !important; border-color: #373a40 !important; color: #e5e5e5 !important; }
+.dark input, .dark textarea, .dark select { background-color: #2c2e33 !important; border-color: #373a40 !important; color: #e5e5e5 !important; }
 .dark input::placeholder, .dark textarea::placeholder { color: #6a6a6a !important; }
+.dark .bg-canopy-50 { background-color: rgba(22, 163, 74, 0.1) !important; }
+.dark .bg-bark-200 { background-color: #373a40 !important; }
+.dark .hover\:bg-bark-50:hover { background-color: #2c2e33 !important; }
+.dark .hover\:bg-bark-100:hover { background-color: #373a40 !important; }
+.dark .ring-canopy-200 { --tw-ring-color: rgba(22, 163, 74, 0.3) !important; }
+.dark kbd { background-color: #373a40 !important; border-color: #44474d !important; color: #9a9a9a !important; }
+.dark .shadow-lg { box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important; }
+.dark .shadow-2xl { box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important; }
+.dark .card-hover:hover { box-shadow: 0 8px 25px -5px rgba(0,0,0,0.3), 0 4px 10px -5px rgba(0,0,0,0.2) !important; }
+.dark ::-webkit-scrollbar-thumb { background: #44474d; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #5c5f66; }
+.dark ::selection { background-color: rgba(22, 163, 74, 0.3); color: #e5e5e5; }
 
 /* Animations */
 @keyframes fade-in {
@@ -223,4 +235,53 @@ h1, h2, h3, h4, h5, h6 {
 ::selection {
   background-color: var(--color-canopy-200);
   color: var(--color-canopy-900);
+}
+
+/* Smooth list item entrance for backlog rows */
+@keyframes row-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-row-in {
+  animation: row-in 0.25s ease-out forwards;
+}
+
+/* Board column entrance */
+@keyframes column-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-column-in {
+  animation: column-in 0.35s ease-out forwards;
+}
+
+/* Subtle bounce for success states */
+@keyframes bounce-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-bounce-in {
+  animation: bounce-in 0.35s ease-out forwards;
+}
+
+/* Progress bar fill animation */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+.animate-progress {
+  animation: progress-fill 0.8s ease-out forwards;
+}
+
+/* Tooltip */
+.tooltip-trigger:hover .tooltip-content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.tooltip-content {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s, transform 0.15s;
+  pointer-events: none;
 }
