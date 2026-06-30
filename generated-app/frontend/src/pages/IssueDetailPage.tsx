@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   X, Calendar, Target, Zap, Bug, BookOpen, CheckSquare, Layers,
@@ -52,6 +52,28 @@ export function IssueDetailPage() {
     if ('data' in (commentsData as any) && (commentsData as any).data?.items) return (commentsData as any).data.items;
     return [];
   })();
+
+  // Keyboard shortcuts: E to edit title, M to assign to me
+  useEffect(() => {
+    if (!issue) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        setTitleDraft(issue.title);
+        setEditingTitle(true);
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        const currentUserId = localStorage.getItem('canopy-current-user') || SEED_USERS[0].id;
+        updateIssue.mutate({ id: issue.id, data: { assigneeId: currentUserId } });
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [issue]);
 
   if (!issue) {
     return (

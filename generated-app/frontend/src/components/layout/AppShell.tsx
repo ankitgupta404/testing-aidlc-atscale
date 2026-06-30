@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
+import { KeyboardShortcutsModal } from '../KeyboardShortcutsModal';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 export function AppShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+  const handleShowHelp = useCallback(() => {
+    setShortcutsOpen(true);
+  }, []);
+
+  useKeyboardShortcuts({ onShowHelp: handleShowHelp });
 
   return (
     <div className="flex min-h-screen">
@@ -17,6 +26,7 @@ export function AppShell() {
         </main>
       </div>
       <MobileNav isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   );
 }
