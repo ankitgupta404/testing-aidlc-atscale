@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Plus, X, Calendar, Target, Zap } from '../components/icons';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, X, Calendar, Target, Zap, ChevronDown, ChevronRight } from '../components/icons';
 import { useSprints, useCreateSprint } from '../api/sprints';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';
-import { DEFAULT_PROJECT_ID } from '../utils/constants';
+import { DEFAULT_PROJECT_ID, STATUS_LABELS, PRIORITY_COLORS } from '../utils/constants';
 import { formatDate, cn } from '../utils/helpers';
-import type { Sprint } from '@canopy/shared';
+import type { Sprint, Issue } from '@canopy/shared';
 
 const STATUS_BADGE_CLASSES: Record<string, string> = {
   planning: 'bg-bark-100 text-bark-700',
@@ -23,6 +23,7 @@ const STATUS_BADGE_LABELS: Record<string, string> = {
 
 export function SprintPage() {
   const { projectId: paramProjectId } = useParams();
+  const navigate = useNavigate();
   const { currentProject } = useProjectContext();
   const { addToast } = useToast();
   const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
@@ -40,9 +41,18 @@ export function SprintPage() {
   const [formGoal, setFormGoal] = useState('');
   const [formStartDate, setFormStartDate] = useState('');
   const [formEndDate, setFormEndDate] = useState('');
+  const [expandedSprints, setExpandedSprints] = useState<Record<string, boolean>>({});
 
   const getIssueCount = (sprintId: string) => {
     return issues.filter(i => i.sprintId === sprintId).length;
+  };
+
+  const getSprintIssues = (sprintId: string): Issue[] => {
+    return issues.filter(i => i.sprintId === sprintId);
+  };
+
+  const toggleExpand = (sprintId: string) => {
+    setExpandedSprints(prev => ({ ...prev, [sprintId]: !prev[sprintId] }));
   };
 
   const handleCreateSprint = async () => {
@@ -111,46 +121,100 @@ export function SprintPage() {
             <p className="text-sm text-bark-500">Create your first sprint to organize your work.</p>
           </div>
         ) : (
-          sortedSprints.map((sprint: Sprint) => (
-            <div
-              key={sprint.id}
-              className={cn(
-                'bg-white rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md',
-                sprint.status === 'active' ? 'border-canopy-400 ring-1 ring-canopy-100' : 'border-bark-200'
-              )}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-display font-semibold text-bark-900 text-lg truncate">{sprint.name}</h3>
-                    <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0', STATUS_BADGE_CLASSES[sprint.status])}>
-                      {STATUS_BADGE_LABELS[sprint.status]}
-                    </span>
-                  </div>
-                  {sprint.goal && (
-                    <div className="flex items-start gap-2 mb-3">
-                      <Target className="w-4 h-4 text-bark-400 mt-0.5 shrink-0" />
-                      <p className="text-sm text-bark-600">{sprint.goal}</p>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-bark-500">
-                    {(sprint.startDate || sprint.endDate) && (
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>
-                          {sprint.startDate ? formatDate(sprint.startDate) : '?'}
-                          {' - '}
-                          {sprint.endDate ? formatDate(sprint.endDate) : '?'}
+          sortedSprints.map((sprint: Sprint) => {
+            const sprintIssues = getSprintIssues(sprint.id);
+            const doneCount = sprintIssues.filter(i => i.status === 'done').length;
+            const progress = sprintIssues.length > 0 ? Math.round((doneCount / sprintIssues.length) * 100) : 0;
+            const isExpanded = expandedSprints[sprint.id];
+
+            return (
+              <div
+                key={sprint.id}
+                className={cn(
+                  'bg-white rounded-xl border shadow-sm transition-shadow hover:shadow-md',
+                  sprint.status === 'active' ? 'border-canopy-400 ring-1 ring-canopy-100' : 'border-bark-200'
+                )}
+              >
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-display font-semibold text-bark-900 text-lg truncate">{sprint.name}</h3>
+                        <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0', STATUS_BADGE_CLASSES[sprint.status])}>
+                          {STATUS_BADGE_LABELS[sprint.status]}
                         </span>
                       </div>
-                    )}
-                    <span className="text-bark-400">|</span>
-                    <span>{getIssueCount(sprint.id)} issue{getIssueCount(sprint.id) !== 1 ? 's' : ''}</span>
+                      {sprint.goal && (
+                        <div className="flex items-start gap-2 mb-3">
+                          <Target className="w-4 h-4 text-bark-400 mt-0.5 shrink-0" />
+                          <p className="text-sm text-bark-600">{sprint.goal}</p>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-bark-500">
+                        {(sprint.startDate || sprint.endDate) && (
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>
+                              {sprint.startDate ? formatDate(sprint.startDate) : '?'}
+                              {' - '}
+                              {sprint.endDate ? formatDate(sprint.endDate) : '?'}
+                            </span>
+                          </div>
+                        )}
+                        <span className="text-bark-400">|</span>
+                        <span>{sprintIssues.length} issue{sprintIssues.length !== 1 ? 's' : ''}</span>
+                        {sprintIssues.length > 0 && (
+                          <>
+                            <span className="text-bark-400">|</span>
+                            <span className="text-canopy-600 font-medium">{progress}% complete</span>
+                          </>
+                        )}
+                      </div>
+                      {/* Progress bar */}
+                      {sprintIssues.length > 0 && (
+                        <div className="mt-3 h-1.5 bg-bark-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-canopy-500 rounded-full transition-all duration-500"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* Expandable issue list */}
+                {sprintIssues.length > 0 && (
+                  <>
+                    <button
+                      onClick={() => toggleExpand(sprint.id)}
+                      className="w-full flex items-center gap-2 px-5 py-2.5 text-xs font-medium text-bark-500 hover:text-bark-700 hover:bg-bark-50 border-t border-bark-100 transition-colors"
+                    >
+                      {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                      {isExpanded ? 'Hide issues' : 'Show issues'}
+                    </button>
+
+                    {isExpanded && (
+                      <div className="border-t border-bark-100 divide-y divide-bark-50">
+                        {sprintIssues.map((issue: Issue) => (
+                          <button
+                            key={issue.id}
+                            onClick={() => navigate(`/projects/${projectId}/issues/${issue.id}`)}
+                            className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-left hover:bg-bark-50 transition-colors"
+                          >
+                            <span className={cn('w-2 h-2 rounded-full shrink-0', PRIORITY_COLORS[issue.priority] || 'bg-bark-400')} />
+                            <span className="font-mono text-xs text-bark-400 shrink-0">{issue.key}</span>
+                            <span className="truncate flex-1 text-bark-800">{issue.title}</span>
+                            <span className="text-xs text-bark-400 shrink-0">{STATUS_LABELS[issue.status]}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
