@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, X, Calendar, Target, Zap, ChevronDown, ChevronRight } from '../components/icons';
-import { useSprints, useCreateSprint } from '../api/sprints';
+import { useSprints, useCreateSprint, useStartSprint, useCompleteSprint } from '../api/sprints';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';
@@ -31,6 +31,8 @@ export function SprintPage() {
   const { data: sprintsData, isLoading } = useSprints(projectId);
   const { data: issuesData } = useIssues(projectId);
   const createSprintMutation = useCreateSprint();
+  const startSprintMutation = useStartSprint();
+  const completeSprintMutation = useCompleteSprint();
 
   const sprints = sprintsData || [];
   const issues = issuesData || [];
@@ -179,6 +181,37 @@ export function SprintPage() {
                           />
                         </div>
                       )}
+                      {/* Sprint actions */}
+                      <div className="mt-3 flex gap-2">
+                        {sprint.status === 'planning' && (
+                          <button
+                            onClick={() => {
+                              startSprintMutation.mutate(sprint.id, {
+                                onSuccess: () => addToast(`${sprint.name} started!`, 'success'),
+                                onError: () => addToast('Failed to start sprint', 'error'),
+                              });
+                            }}
+                            disabled={startSprintMutation.isPending}
+                            className="px-3 py-1.5 text-xs font-medium bg-canopy-600 text-white rounded-lg hover:bg-canopy-700 disabled:opacity-50 transition-colors"
+                          >
+                            {startSprintMutation.isPending ? 'Starting...' : 'Start Sprint'}
+                          </button>
+                        )}
+                        {sprint.status === 'active' && (
+                          <button
+                            onClick={() => {
+                              completeSprintMutation.mutate(sprint.id, {
+                                onSuccess: () => addToast(`${sprint.name} completed!`, 'success'),
+                                onError: () => addToast('Failed to complete sprint', 'error'),
+                              });
+                            }}
+                            disabled={completeSprintMutation.isPending}
+                            className="px-3 py-1.5 text-xs font-medium bg-bark-700 text-white rounded-lg hover:bg-bark-800 disabled:opacity-50 transition-colors"
+                          >
+                            {completeSprintMutation.isPending ? 'Completing...' : 'Complete Sprint'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
