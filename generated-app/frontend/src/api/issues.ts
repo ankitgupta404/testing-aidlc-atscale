@@ -34,8 +34,14 @@ export function useIssue(id: string | undefined) {
 export function useCreateIssue() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ projectId, data }: { projectId: string; data: Partial<CreateIssue> }) =>
-      api.post<unknown>(`/api/projects/${projectId}/issues`, data),
+    mutationFn: ({ projectId, data }: { projectId: string; data: Partial<CreateIssue> }) => {
+      // Send both reporterId and reporter for compatibility with deployed Lambda
+      const payload = {
+        ...data,
+        reporter: data.reporterId || (data as any).reporter,
+      };
+      return api.post<unknown>(`/api/projects/${projectId}/issues`, payload);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['issues'] }),
   });
 }
