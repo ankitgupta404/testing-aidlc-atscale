@@ -103,7 +103,14 @@ export function ProjectListPage() {
               {project.description && (
                 <p className="text-sm text-bark-500 line-clamp-2 mb-3">{project.description}</p>
               )}
-              <div className="text-xs text-bark-400">Updated {getRelativeTime(project.updatedAt)}</div>
+              <div className="flex items-center gap-3 text-xs text-bark-400">
+                <span>Updated {getRelativeTime(project.updatedAt)}</span>
+                {(project as any).issueCounter > 0 && (
+                  <span className="px-1.5 py-0.5 bg-canopy-50 text-canopy-700 rounded font-medium">
+                    {(project as any).issueCounter} issues
+                  </span>
+                )}
+              </div>
             </button>
           ))}
         </div>

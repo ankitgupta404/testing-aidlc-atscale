@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
+import { ScrollToTop } from './components/ScrollToTop';
 import { ProjectProvider } from './context/ProjectContext';
 import { ToastProvider } from './context/ToastContext';
 import { DashboardPage } from './pages/DashboardPage';
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <ToastProvider>
       <ProjectProvider>
+        <ScrollToTop />
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
