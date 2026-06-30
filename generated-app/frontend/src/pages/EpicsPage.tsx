@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { Plus, X, Hexagon } from '../components/icons';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Plus, X, Hexagon, ChevronDown } from '../components/icons';
 import { useEpics, useCreateEpic } from '../api/epics';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';
-import { DEFAULT_PROJECT_ID } from '../utils/constants';
+import { DEFAULT_PROJECT_ID, STATUS_LABELS, PRIORITY_COLORS } from '../utils/constants';
 import { cn } from '../utils/helpers';
 import type { Epic, EpicStatus, Issue } from '@canopy/shared';
 
@@ -28,6 +28,7 @@ const DEFAULT_COLORS = [
 
 export function EpicsPage() {
   const { projectId: paramProjectId } = useParams();
+  const navigate = useNavigate();
   const { currentProject } = useProjectContext();
   const { addToast } = useToast();
   const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
@@ -58,6 +59,11 @@ export function EpicsPage() {
   const [formDescription, setFormDescription] = useState('');
   const [formColor, setFormColor] = useState(DEFAULT_COLORS[0]);
   const [formStatus, setFormStatus] = useState<EpicStatus>('draft');
+  const [expandedEpic, setExpandedEpic] = useState<string | null>(null);
+
+  const getEpicIssues = (epicId: string): Issue[] => {
+    return issues.filter(i => i.epicId === epicId);
+  };
 
   const handleCreateEpic = async () => {
     if (!formName.trim()) return;
@@ -121,6 +127,8 @@ export function EpicsPage() {
           {epics.map((epic: Epic) => {
             const ep = epicProgress[epic.id] || { total: 0, done: 0 };
             const progress = ep.total > 0 ? Math.round((ep.done / ep.total) * 100) : 0;
+            const epicIssues = getEpicIssues(epic.id);
+            const isExpanded = expandedEpic === epic.id;
             return (
               <div
                 key={epic.id}
@@ -129,29 +137,59 @@ export function EpicsPage() {
                 {/* Color left border */}
                 <div className="flex">
                   <div className="w-1.5 shrink-0" style={{ backgroundColor: epic.color }} />
-                  <div className="flex-1 p-5">
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <h3 className="font-display font-semibold text-bark-900 leading-tight">{epic.name}</h3>
-                      <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0', EPIC_STATUS_COLORS[epic.status])}>
-                        {EPIC_STATUS_LABELS[epic.status]}
-                      </span>
+                  <div className="flex-1">
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <h3 className="font-display font-semibold text-bark-900 leading-tight">{epic.name}</h3>
+                        <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0', EPIC_STATUS_COLORS[epic.status])}>
+                          {EPIC_STATUS_LABELS[epic.status]}
+                        </span>
+                      </div>
+                      {epic.description && (
+                        <p className="text-sm text-bark-600 mb-4 line-clamp-2">{epic.description}</p>
+                      )}
+                      {/* Progress bar */}
+                      <div className="mb-2">
+                        <div className="flex items-center justify-between text-xs text-bark-500 mb-1">
+                          <span>{ep.done}/{ep.total} issues done</span>
+                          <span>{progress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-bark-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{ width: `${progress}%`, backgroundColor: epic.color }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    {epic.description && (
-                      <p className="text-sm text-bark-600 mb-4 line-clamp-2">{epic.description}</p>
+
+                    {/* Expand toggle */}
+                    {epicIssues.length > 0 && (
+                      <>
+                        <button
+                          onClick={() => setExpandedEpic(isExpanded ? null : epic.id)}
+                          className="w-full flex items-center gap-2 px-5 py-2 text-xs font-medium text-bark-500 hover:text-bark-700 hover:bg-bark-50 border-t border-bark-100 transition-colors"
+                        >
+                          <ChevronDown className={cn('w-3 h-3 transition-transform', isExpanded ? '' : '-rotate-90')} />
+                          {epicIssues.length} issues
+                        </button>
+                        {isExpanded && (
+                          <div className="border-t border-bark-100 max-h-48 overflow-y-auto">
+                            {epicIssues.map(issue => (
+                              <button
+                                key={issue.id}
+                                onClick={() => navigate(`/projects/${projectId}/issues/${issue.id}`)}
+                                className="w-full flex items-center gap-2 px-5 py-2 text-xs text-left hover:bg-bark-50 transition-colors"
+                              >
+                                <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', PRIORITY_COLORS[issue.priority] || 'bg-bark-400')} />
+                                <span className="font-mono text-bark-400 shrink-0">{issue.key}</span>
+                                <span className="truncate flex-1 text-bark-700">{issue.title}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
-                    {/* Progress bar */}
-                    <div className="mb-2">
-                      <div className="flex items-center justify-between text-xs text-bark-500 mb-1">
-                        <span>{ep.done}/{ep.total} issues done</span>
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-bark-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-300"
-                          style={{ width: `${progress}%`, backgroundColor: epic.color }}
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
