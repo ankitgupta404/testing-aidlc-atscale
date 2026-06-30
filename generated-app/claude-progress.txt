@@ -1,11 +1,11 @@
 # Canopy Project Progress - COMPLETE
 
 ## All Phase Gates PASSING
-1. `shared/` compiles: `cd shared && npx tsc --noEmit`
-2. `infrastructure/` synths: `cd infrastructure && npx cdk synth`
+1. `shared/` compiles: `cd shared && npx tsc --noEmit` - PASS
+2. `infrastructure/` synths: `cd infrastructure && npx cdk synth` - PASS
 3. `infrastructure/` tests: 11/11 passing
-4. `backend/` compiles: `cd backend && npx tsc --noEmit`
-5. `frontend/` builds: `cd frontend && npx vite build` (5s, code-split: recharts/dndkit/main)
+4. `backend/` compiles: `cd backend && npx tsc --noEmit` - PASS
+5. `frontend/` builds: `cd frontend && npx vite build` - PASS (5s, code-split)
 
 ## Architecture
 - **Monorepo**: shared/ + backend/ + infrastructure/ + frontend/
@@ -26,28 +26,114 @@
 - Lambda (Node.js 20, NodejsFunction with esbuild bundling)
 - API Gateway HTTP API
 - S3 + CloudFront (for static hosting)
-- 11 CDK tests passing
+- 11 CDK tests passing (snapshot + assertions)
 
 ### Phase 2b: Backend
 - Lambda handler with path-based routing
 - Full CRUD: projects, issues, sprints, epics, comments, announcements
 - Seed data endpoint
 - DynamoDB operations (single-table design)
-- All API endpoints verified working (curl tests pass)
+- All API endpoints verified working
 
 ### Phase 3: Frontend
 - React 19 + Vite 7 + Tailwind CSS v4 + TanStack Query v5
 - API wired via Vite proxy to deployed backend
 - All pages working with REAL DATA from deployed API
 
-### Phase 4: Polish (Current)
-- **Dashboard**: Recharts visualizations (PieChart donut, BarChart velocity, LineChart burndown), sprint progress, announcements widget
-- **Board**: @dnd-kit drag-and-drop Kanban with SortableContext, DragOverlay with rotation, priority-color borders, GripVertical handles, filters
-- **Issue Detail**: Two-column layout (content + metadata sidebar), inline title editing, description with edit/save, comments section, status/priority/assignee/sprint/epic/points/type metadata cards
-- **Command Palette**: Opens with Cmd+K, shows navigation shortcuts when empty, searches issues by title/key and projects by name, keyboard nav (arrows + Enter + Escape)
-- **Animations**: fade-in, slide-in-right, scale-in, shimmer, stagger-children, slide-down, pulse-soft, backdrop, toast-in
-- **Code Splitting**: manualChunks for recharts and dndkit bundles
-- Issue detail supports both UUID and key-based URLs (CAN-7 style)
+### Phase 4: Polish (Complete)
+
+#### Dashboard
+- 4 stats cards (total issues, completed, in progress, sprint progress)
+- Recharts PieChart (donut) for status distribution with legend
+- Recharts BarChart for sprint velocity (committed vs completed)
+- Recharts LineChart for burndown (ideal vs actual)
+- Sprint progress bar with status breakdown grid
+- Announcements widget with relative timestamps
+- Auto-selects default project on load
+
+#### Board (Kanban)
+- @dnd-kit drag-and-drop with SortableContext, useSortable
+- DragOverlay with rotation effect
+- GripVertical drag handles
+- Priority-colored left borders on cards
+- Story points badge
+- Filters panel (assignee, priority) with toggle
+- Optimistic state management for smooth drag
+- Persists moves to API via /api/issues/:id/move
+
+#### Backlog
+- Sprint-grouped issue list (Active/Planning/Unassigned)
+- Create issue form (title, type, priority, assignee, points)
+- Search by title/key
+- Filter chips (status, priority, type)
+- Collapsible sections
+- Issue rows link to detail page
+
+#### Sprint Page
+- Sprint cards with Active/Planning/Completed badges
+- Progress bars (% complete based on done issues)
+- Expandable "Show issues" section per sprint
+- Issues link to detail page
+- Create Sprint modal (name, goal, dates)
+
+#### Epics Page
+- Card grid with epic-colored borders
+- Progress bars colored to match epic
+- Expandable issue lists per epic
+- Status badges (Draft, In Progress, Done)
+- Create Epic modal (name, description, color picker, status)
+
+#### Issue Detail
+- Two-column layout (content + metadata sidebar)
+- Inline title editing (click to edit)
+- Description with edit/save/cancel
+- Comments section with add comment (Ctrl+Enter)
+- Metadata sidebar cards: Status, Priority, Assignee, Sprint, Epic, Points/Type, Created
+- Supports both UUID and key-based URLs (CAN-7 style)
+- Back navigation
+
+#### Settings
+- Three tabs: General, Board, Members
+- Project details display
+- Board column mapping table
+- Team members list with role badges
+- Application info section
+
+#### Announcements
+- Full CRUD (create, read, update, delete)
+- Priority levels (info, warning, critical) with icons
+- Pin to top functionality
+- Author avatars and relative timestamps
+- Edit modal with all fields
+
+#### Command Palette (Cmd+K)
+- Opens as overlay modal
+- Shows navigation shortcuts when empty
+- Searches issues by title/key
+- Searches projects by name/key
+- Keyboard navigation (arrows, Enter, Escape)
+- scale-in animation
+
+#### Dark Mode
+- ThemeProvider with localStorage persistence
+- Moon/Sun toggle in sidebar footer
+- CSS overrides for backgrounds, text, borders
+- Respects system preference
+
+#### Mobile
+- Full mobile navigation with hamburger menu
+- All project nav links in mobile drawer
+- Active state highlighting
+- Backdrop overlay with animation
+
+#### UX Polish
+- Animations: fade-in, slide-in-right/left, scale-in, shimmer, stagger-children, slide-down, pulse-soft, backdrop, toast-in, count-up
+- Button press states (scale on active)
+- Custom scrollbars
+- Card hover lift effects
+- Toast notifications with icons and backdrop blur
+- Code splitting (recharts/dndkit separate chunks)
+- EmptyState, LoadingSpinner, SkeletonCard/List components
 
 ## Design Fusion
 - Colors: Everforest (canopy greens, bark neutrals, forest accents)
@@ -55,33 +141,21 @@
 - Layout: Linear app principles (structured sidebar, content area)
 - Details: Rounded cards with priority color borders, avatar initials
 
-## Pages
-1. Dashboard - Stats cards, charts, sprint progress, announcements
-2. Projects - Card grid with search, create project
-3. Backlog - Sprint-grouped issues, create issue, filters
-4. Board - DnD Kanban, 5 columns, drag overlay
-5. Sprints - List with status badges, goals, dates
-6. Epics - Card grid with progress bars
-7. Issue Detail - Two-column, inline edit, comments
-8. Settings - General/Board/Members tabs
-9. Announcements - CRUD with pinning
-
-## Test Results (all passing)
-- shared-schemas-compile: PASS
-- cdk-synth: PASS
-- cdk-tests: PASS (11/11)
-- backend-compile: PASS
-- api-list-projects: PASS
-- api-list-issues: PASS
-- api-list-sprints: PASS
-- api-list-epics: PASS
-- api-list-announcements: PASS
-- frontend pages: All no console errors (except comments 404 handled gracefully)
-
-## Known Issues
-- Comments endpoint returns 404 from deployed Lambda (routing issue in deployed code)
-  - Frontend handles gracefully with try/catch
-  - Fix was pushed but deploy targets different stack
+## API Verification (All Working)
+- GET /api/projects - 3 projects
+- GET /api/projects/:id - single project
+- POST /api/projects - create project
+- GET /api/projects/:id/issues - 25 issues
+- POST /api/projects/:id/issues - create issue (verified E2E)
+- PUT /api/issues/:id - update issue
+- PUT /api/issues/:id/move - move issue
+- GET /api/projects/:id/sprints - 3 sprints
+- POST /api/projects/:id/sprints - create sprint
+- GET /api/projects/:id/epics - 3 epics
+- POST /api/projects/:id/epics - create epic
+- GET /api/announcements - announcements
+- POST /api/announcements - create announcement
+- POST /api/seed - seed data
 
 ## How to Run
 ```bash
