@@ -25,7 +25,7 @@ import { useProjectContext } from '../context/ProjectContext';
 import {
   STATUS_LABELS, PRIORITY_LABELS, SEED_USERS, DEFAULT_PROJECT_ID,
 } from '../utils/constants';
-import { getUserName, getUserInitials, getAvatarColor, cn } from '../utils/helpers';
+import { getUserName, getUserInitials, getAvatarColor, cn, resolveAssignee } from '../utils/helpers';
 import type { Issue, IssueStatus, IssuePriority } from '@canopy/shared';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -106,17 +106,21 @@ function SortableCard({ issue, onClick }: SortableCardProps) {
               }`} />
               <span className="text-[10px] text-bark-500">{PRIORITY_LABELS[issue.priority]}</span>
             </div>
-            {issue.assigneeId && (
-              <div
-                className={cn(
-                  'w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-medium',
-                  getAvatarColor(getUserName(issue.assigneeId))
-                )}
-                title={getUserName(issue.assigneeId)}
-              >
-                {getUserInitials(getUserName(issue.assigneeId))}
-              </div>
-            )}
+            {(() => {
+              const assignee = resolveAssignee(issue as any);
+              if (!assignee) return null;
+              return (
+                <div
+                  className={cn(
+                    'w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-medium',
+                    getAvatarColor(assignee.name)
+                  )}
+                  title={assignee.name}
+                >
+                  {getUserInitials(assignee.name)}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -171,7 +175,10 @@ export function BoardPage() {
 
   const filteredIssues = useMemo(() => {
     return displayIssues.filter((issue: Issue) => {
-      if (assigneeFilter && issue.assigneeId !== assigneeFilter) return false;
+      if (assigneeFilter) {
+        const resolved = resolveAssignee(issue as any);
+        if (!resolved || resolved.id !== assigneeFilter) return false;
+      }
       if (priorityFilter && issue.priority !== priorityFilter) return false;
       return true;
     });
@@ -379,7 +386,7 @@ export function BoardPage() {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: '500px' }}>
+        <div className="flex gap-3 overflow-x-auto pb-4" style={{ minHeight: '500px' }}>
           {BOARD_COLUMNS.map((col, idx) => (
             <BoardColumn
               key={col.status}
@@ -423,7 +430,7 @@ function BoardColumn({ column, issues, onCardClick, animationDelay = 0 }: BoardC
   return (
     <div
       ref={setNodeRef}
-      className="flex-shrink-0 w-[240px] xl:w-[260px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col animate-column-in"
+      className="flex-shrink-0 w-[220px] xl:flex-1 xl:min-w-[180px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col animate-column-in"
       style={{ animationDelay: `${animationDelay}ms` }}
     >
       {/* Column header */}

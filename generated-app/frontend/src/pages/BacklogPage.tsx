@@ -12,7 +12,7 @@ import {
   STATUS_COLORS, STATUS_LABELS, PRIORITY_COLORS, PRIORITY_LABELS,
   TYPE_LABELS, SEED_USERS, DEFAULT_PROJECT_ID,
 } from '../utils/constants';
-import { getUserName, getUserInitials, getAvatarColor, cn } from '../utils/helpers';
+import { getUserName, getUserInitials, getAvatarColor, cn, resolveAssignee } from '../utils/helpers';
 import type { Issue, IssueStatus, IssuePriority, IssueType } from '@canopy/shared';
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -309,17 +309,21 @@ export function BacklogPage() {
                         <span className={cn('text-xs font-medium', PRIORITY_COLORS[issue.priority])}>
                           {PRIORITY_LABELS[issue.priority]}
                         </span>
-                        {issue.assigneeId && (
-                          <div
-                            className={cn(
-                              'w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-medium shrink-0',
-                              getAvatarColor(getUserName(issue.assigneeId))
-                            )}
-                            title={getUserName(issue.assigneeId)}
-                          >
-                            {getUserInitials(getUserName(issue.assigneeId))}
-                          </div>
-                        )}
+                        {(() => {
+                          const assignee = resolveAssignee(issue as any);
+                          if (!assignee) return null;
+                          return (
+                            <div
+                              className={cn(
+                                'w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-medium shrink-0',
+                                getAvatarColor(assignee.name)
+                              )}
+                              title={assignee.name}
+                            >
+                              {getUserInitials(assignee.name)}
+                            </div>
+                          );
+                        })()}
                         {issue.storyPoints !== undefined && issue.storyPoints > 0 && (
                           <span className="text-xs bg-bark-100 text-bark-600 px-2 py-0.5 rounded-full shrink-0">
                             {issue.storyPoints} SP

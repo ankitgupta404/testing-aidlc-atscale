@@ -19,11 +19,12 @@ export function useComments(issueId: string | undefined) {
         if (Array.isArray(data)) return data;
         return [];
       } catch {
-        // Comments endpoint may not exist yet - return empty array gracefully
+        // Comments endpoint may not exist on deployed Lambda yet - return empty array
         return [];
       }
     },
     enabled: !!issueId,
+    retry: false, // Don't retry if endpoint returns 404
   });
 }
 

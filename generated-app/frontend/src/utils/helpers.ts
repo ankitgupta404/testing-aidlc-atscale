@@ -37,7 +37,24 @@ export function formatDate(dateStr: string): string {
 export function getUserName(userId: string | undefined): string {
   if (!userId) return 'Unassigned';
   const user = SEED_USERS.find(u => u.id === userId);
-  return user?.name || 'Unknown';
+  return user?.name || userId; // Return the raw value if not found (might be a name)
+}
+
+/**
+ * Resolve assignee from issue data. The API may return:
+ * - assigneeId as UUID → look up in SEED_USERS
+ * - assignee as name string → find user by name
+ * Returns the user object or undefined if unassigned.
+ */
+export function resolveAssignee(issue: { assigneeId?: string; assignee?: string }): typeof SEED_USERS[0] | undefined {
+  if (issue.assigneeId) {
+    return SEED_USERS.find(u => u.id === issue.assigneeId);
+  }
+  if ((issue as any).assignee) {
+    const name = (issue as any).assignee;
+    return SEED_USERS.find(u => u.name === name || u.name.toLowerCase() === name.toLowerCase());
+  }
+  return undefined;
 }
 
 export function getUserInitials(name: string): string {

@@ -12,7 +12,7 @@ import {
   STATUS_LABELS, STATUS_COLORS, PRIORITY_LABELS, PRIORITY_COLORS,
   TYPE_LABELS, SEED_USERS, DEFAULT_PROJECT_ID
 } from '../utils/constants';
-import { getUserName, getUserInitials, getAvatarColor, getRelativeTime, cn } from '../utils/helpers';
+import { getUserName, getUserInitials, getAvatarColor, getRelativeTime, cn, resolveAssignee } from '../utils/helpers';
 import type { Issue, Comment } from '@canopy/shared';
 
 const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -89,7 +89,7 @@ export function IssueDetailPage() {
   const TypeIcon = TYPE_ICONS[issue.type] || CheckSquare;
   const sprint = sprints?.find(s => s.id === issue.sprintId);
   const epic = epics?.find(e => e.id === issue.epicId);
-  const assignee = SEED_USERS.find(u => u.id === issue.assigneeId);
+  const assignee = resolveAssignee(issue as any);
 
   const handleStatusChange = (newStatus: string) => {
     updateIssue.mutate({ id: issue.id, data: { status: newStatus as Issue['status'] } });
@@ -409,7 +409,7 @@ export function IssueDetailPage() {
                   onClick={() => handleAssigneeChange('')}
                   className={cn(
                     'w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
-                    !issue.assigneeId ? 'bg-canopy-50 text-canopy-700' : 'hover:bg-bark-50 text-bark-600'
+                    !assignee ? 'bg-canopy-50 text-canopy-700' : 'hover:bg-bark-50 text-bark-600'
                   )}
                 >
                   Unassigned
@@ -420,7 +420,7 @@ export function IssueDetailPage() {
                     onClick={() => handleAssigneeChange(u.id)}
                     className={cn(
                       'w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2',
-                      issue.assigneeId === u.id ? 'bg-canopy-50 text-canopy-700' : 'hover:bg-bark-50 text-bark-600'
+                      assignee?.id === u.id ? 'bg-canopy-50 text-canopy-700' : 'hover:bg-bark-50 text-bark-600'
                     )}
                   >
                     <div className={cn('w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px]', getAvatarColor(u.name))}>

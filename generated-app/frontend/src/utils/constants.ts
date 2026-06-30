@@ -6,6 +6,12 @@ export const SEED_USERS: User[] = [
   { id: '10000000-0000-0000-0000-000000000003', name: 'Carol Williams', email: 'carol@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
   { id: '10000000-0000-0000-0000-000000000004', name: 'David Park', email: 'david@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
   { id: '10000000-0000-0000-0000-000000000005', name: 'Eva Thompson', email: 'eva@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
+  // Legacy seed users (deployed Lambda v1)
+  { id: '11111111-1111-1111-1111-111111111112', name: 'Sarah Chen', email: 'sarah@canopy.dev', role: 'admin', createdAt: '2024-01-01T00:00:00.000Z' },
+  { id: '11111111-1111-1111-1111-111111111113', name: 'Marcus Johnson', email: 'marcus@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
+  { id: '11111111-1111-1111-1111-111111111114', name: 'Alex Rivera', email: 'alex@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
+  { id: '11111111-1111-1111-1111-111111111115', name: 'Priya Patel', email: 'priya@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
+  { id: '11111111-1111-1111-1111-111111111116', name: 'Maya Wong', email: 'maya@canopy.dev', role: 'member', createdAt: '2024-01-01T00:00:00.000Z' },
 ];
 
 export const STATUS_COLORS: Record<string, string> = {
