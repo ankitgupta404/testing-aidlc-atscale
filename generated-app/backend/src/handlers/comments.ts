@@ -9,39 +9,41 @@ export async function handleComments(event: APIGatewayProxyEventV2): Promise<Rou
 
   // GET /api/issues/:issueId/comments
   const listMatch = path.match(/^\/api\/issues\/([^/]+)\/comments$/);
-  if (listMatch && method === 'GET') {
-    const comments = await commentsDb.listByIssue(listMatch[1]);
-    return { statusCode: 200, body: { success: true, data: { items: comments, cursor: null } } };
-  }
-
-  // POST /api/issues/:issueId/comments
-  if (listMatch && method === 'POST') {
-    const body = JSON.parse(event.body || '{}');
-    const parsed = CreateCommentSchema.safeParse({ ...body, issueId: listMatch[1] });
-    if (!parsed.success) {
-      return { statusCode: 400, body: { success: false, error: parsed.error.message } };
+  if (listMatch) {
+    const issueId = listMatch[1];
+    if (method === 'GET') {
+      const comments = await commentsDb.listByIssue(issueId);
+      return { statusCode: 200, body: { success: true, comments, data: { items: comments, cursor: null } } };
     }
-    const comment = await commentsDb.create(parsed.data);
-    return { statusCode: 201, body: { success: true, data: comment } };
+    if (method === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const parsed = CreateCommentSchema.safeParse({ ...body, issueId });
+      if (!parsed.success) {
+        return { statusCode: 400, body: { success: false, error: parsed.error.message } };
+      }
+      const comment = await commentsDb.create(parsed.data);
+      return { statusCode: 201, body: { success: true, data: comment } };
+    }
   }
 
   // PUT /api/comments/:id
   const updateMatch = path.match(/^\/api\/comments\/([^/]+)$/);
-  if (updateMatch && method === 'PUT') {
-    const body = JSON.parse(event.body || '{}');
-    const parsed = UpdateCommentSchema.safeParse(body);
-    if (!parsed.success) {
-      return { statusCode: 400, body: { success: false, error: parsed.error.message } };
+  if (updateMatch) {
+    const commentId = updateMatch[1];
+    if (method === 'PUT') {
+      const body = JSON.parse(event.body || '{}');
+      const parsed = UpdateCommentSchema.safeParse(body);
+      if (!parsed.success) {
+        return { statusCode: 400, body: { success: false, error: parsed.error.message } };
+      }
+      const comment = await commentsDb.update(commentId, parsed.data);
+      return { statusCode: 200, body: { success: true, data: comment } };
     }
-    const comment = await commentsDb.update(updateMatch[1], parsed.data);
-    return { statusCode: 200, body: { success: true, data: comment } };
+    if (method === 'DELETE') {
+      await commentsDb.delete(commentId);
+      return { statusCode: 200, body: { success: true } };
+    }
   }
 
-  // DELETE /api/comments/:id
-  if (updateMatch && method === 'DELETE') {
-    await commentsDb.delete(updateMatch[1]);
-    return { statusCode: 200, body: { success: true } };
-  }
-
-  return { statusCode: 404, body: { success: false, error: 'Not found' } };
+  return { statusCode: 404, body: { success: false, error: 'Comment route not found' } };
 }
