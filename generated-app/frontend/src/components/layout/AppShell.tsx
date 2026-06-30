@@ -5,18 +5,24 @@ import { Header } from './Header';
 import { MobileNav } from './MobileNav';
 import { BottomNav } from './BottomNav';
 import { LoadingBar } from '../LoadingBar';
+import { CreateIssueModal } from '../CreateIssueModal';
 import { KeyboardShortcutsModal } from '../KeyboardShortcutsModal';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 export function AppShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [createIssueOpen, setCreateIssueOpen] = useState(false);
 
   const handleShowHelp = useCallback(() => {
     setShortcutsOpen(true);
   }, []);
 
-  useKeyboardShortcuts({ onShowHelp: handleShowHelp });
+  const handleCreateIssue = useCallback(() => {
+    setCreateIssueOpen(true);
+  }, []);
+
+  useKeyboardShortcuts({ onShowHelp: handleShowHelp, onCreateIssue: handleCreateIssue });
 
   return (
     <div className="flex min-h-screen">
@@ -30,6 +36,7 @@ export function AppShell() {
       </div>
       <MobileNav isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       <BottomNav />
+      <CreateIssueModal open={createIssueOpen} onClose={() => setCreateIssueOpen(false)} />
       <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   );

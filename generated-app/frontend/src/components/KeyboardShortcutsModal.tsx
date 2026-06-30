@@ -22,6 +22,7 @@ const SHORTCUT_GROUPS = [
   {
     title: 'Actions',
     shortcuts: [
+      { keys: ['C'], description: 'Create new issue' },
       { keys: ['⌘', 'K'], description: 'Open command palette' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
       { keys: ['Esc'], description: 'Close modal / cancel' },

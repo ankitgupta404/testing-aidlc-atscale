@@ -11,10 +11,12 @@ import { DEFAULT_PROJECT_ID } from '../utils/constants';
  * - G then E: Go to Epics
  * - G then A: Go to Announcements
  * - G then P: Go to Projects
+ * - C: Create new issue (navigates to backlog with create form open)
  * - ? : Show keyboard shortcuts help
  */
 export function useKeyboardShortcuts(options?: {
   onShowHelp?: () => void;
+  onCreateIssue?: () => void;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -98,6 +100,10 @@ export function useKeyboardShortcuts(options?: {
       if (key === '?' && e.shiftKey) {
         e.preventDefault();
         options?.onShowHelp?.();
+      }
+      if (key === 'c' && !e.shiftKey) {
+        e.preventDefault();
+        options?.onCreateIssue?.();
       }
     };
 
