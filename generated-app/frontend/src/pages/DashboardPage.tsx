@@ -30,9 +30,10 @@ export function DashboardPage() {
   const { currentProject, setCurrentProject } = useProjectContext();
   const { data: projects } = useProjects();
   const projectId = currentProject?.id || DEFAULT_PROJECT_ID;
-  const { data: issues } = useIssues(projectId);
-  const { data: sprints } = useSprints(projectId);
+  const { data: issues, isLoading: issuesLoading } = useIssues(projectId);
+  const { data: sprints, isLoading: sprintsLoading } = useSprints(projectId);
   const { data: announcements } = useAnnouncements();
+  const isLoading = issuesLoading || sprintsLoading;
 
   // Auto-set current project
   useEffect(() => {
@@ -97,6 +98,33 @@ export function DashboardPage() {
       actual: Math.max(0, Math.round((totalPoints - (completedPoints * (i + 1) / days * 0.8 + Math.random() * 3)) * 10) / 10),
     }));
   })();
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto animate-fade-in">
+        <div className="mb-6">
+          <div className="h-7 w-40 bg-bark-200 rounded animate-pulse" />
+          <div className="h-4 w-56 bg-bark-100 rounded animate-pulse mt-2" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-bark-200 p-5 shadow-sm animate-pulse" style={{ animationDelay: `${i * 80}ms` }}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 bg-bark-100 rounded-lg" />
+                <div className="h-3 w-20 bg-bark-100 rounded" />
+              </div>
+              <div className="h-7 w-16 bg-bark-200 rounded" />
+              <div className="h-3 w-24 bg-bark-100 rounded mt-2" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white rounded-xl border border-bark-200 p-5 shadow-sm h-52 animate-pulse" />
+          <div className="bg-white rounded-xl border border-bark-200 p-5 shadow-sm h-52 animate-pulse" style={{ animationDelay: '100ms' }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto animate-fade-in">

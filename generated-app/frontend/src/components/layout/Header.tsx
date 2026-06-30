@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Search, Menu, Database } from '../icons';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Menu, Database, ChevronDown } from '../icons';
 import { SEED_USERS } from '../../utils/constants';
-import { getUserInitials, getAvatarColor } from '../../utils/helpers';
+import { getUserInitials, getAvatarColor, cn } from '../../utils/helpers';
 import { useSeedData } from '../../api/seed';
 import { useToast } from '../../context/ToastContext';
 import { CommandPalette } from '../CommandPalette';
@@ -11,10 +11,27 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuToggle }: HeaderProps) {
-  const [currentUser] = useState(SEED_USERS[0]);
+  const [currentUserId, setCurrentUserId] = useState<string>(() => {
+    return localStorage.getItem('canopy-current-user') || SEED_USERS[0].id;
+  });
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const seedMutation = useSeedData();
   const { addToast } = useToast();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentUser = SEED_USERS.find(u => u.id === currentUserId) || SEED_USERS[0];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   // Keyboard shortcut: ⌘K or Ctrl+K to open command palette
   useEffect(() => {
@@ -35,6 +52,12 @@ export function Header({ onMenuToggle }: HeaderProps) {
     } catch {
       addToast('Failed to seed database', 'error');
     }
+  };
+
+  const handleUserChange = (userId: string) => {
+    setCurrentUserId(userId);
+    localStorage.setItem('canopy-current-user', userId);
+    setUserDropdownOpen(false);
   };
 
   return (
@@ -75,9 +98,56 @@ export function Header({ onMenuToggle }: HeaderProps) {
           {seedMutation.isPending ? 'Seeding...' : 'Seed Data'}
         </button>
 
-        {/* User avatar */}
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white ${getAvatarColor(currentUser.name)}`}>
-          {getUserInitials(currentUser.name)}
+        {/* User dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+            className="flex items-center gap-1.5 p-1 rounded-lg hover:bg-bark-100 transition-colors"
+          >
+            <div className={cn(
+              'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white',
+              getAvatarColor(currentUser.name)
+            )}>
+              {getUserInitials(currentUser.name)}
+            </div>
+            <ChevronDown className="w-3 h-3 text-bark-400 hidden sm:block" />
+          </button>
+
+          {userDropdownOpen && (
+            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl border border-bark-200 shadow-lg overflow-hidden z-50 animate-scale-in origin-top-right">
+              <div className="px-3 py-2 border-b border-bark-100">
+                <p className="text-[10px] uppercase tracking-wider text-bark-500 font-semibold">Switch User</p>
+              </div>
+              <div className="p-1">
+                {SEED_USERS.map(user => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleUserChange(user.id)}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors',
+                      user.id === currentUserId
+                        ? 'bg-canopy-50 text-canopy-800'
+                        : 'text-bark-700 hover:bg-bark-50'
+                    )}
+                  >
+                    <div className={cn(
+                      'w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0',
+                      getAvatarColor(user.name)
+                    )}>
+                      {getUserInitials(user.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{user.name}</p>
+                      <p className="text-[10px] text-bark-500 truncate">{user.email}</p>
+                    </div>
+                    {user.id === currentUserId && (
+                      <div className="ml-auto w-2 h-2 rounded-full bg-canopy-500 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
