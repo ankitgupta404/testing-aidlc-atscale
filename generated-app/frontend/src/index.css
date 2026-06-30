@@ -273,6 +273,17 @@ h1, h2, h3, h4, h5, h6 {
   animation: progress-fill 0.8s ease-out forwards;
 }
 
+/* Loading bar */
+@keyframes loading-bar {
+  0% { width: 0%; left: 0; }
+  50% { width: 60%; left: 20%; }
+  100% { width: 20%; left: 100%; }
+}
+.animate-loading-bar {
+  animation: loading-bar 1.5s ease-in-out infinite;
+  position: absolute;
+}
+
 /* Tooltip */
 .tooltip-trigger:hover .tooltip-content {
   opacity: 1;
