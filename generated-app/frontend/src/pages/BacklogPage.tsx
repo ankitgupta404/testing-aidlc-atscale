@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Search, Plus, ChevronDown, ChevronRight, X,
   Bug, BookOpen, CheckSquare, Layers, Hexagon,
@@ -25,6 +25,7 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
 
 export function BacklogPage() {
   const { projectId: paramProjectId } = useParams();
+  const navigate = useNavigate();
   const { currentProject } = useProjectContext();
   const { addToast } = useToast();
   const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
@@ -356,6 +357,12 @@ export function BacklogPage() {
                               <p className="mt-1 text-sm text-bark-700 whitespace-pre-wrap">{issue.description}</p>
                             </div>
                           )}
+                          <button
+                            onClick={() => navigate(`/projects/${projectId}/issues/${issue.id}`)}
+                            className="mt-3 text-xs text-canopy-600 hover:text-canopy-700 font-medium"
+                          >
+                            View full detail →
+                          </button>
                         </div>
                       )}
                     </div>
