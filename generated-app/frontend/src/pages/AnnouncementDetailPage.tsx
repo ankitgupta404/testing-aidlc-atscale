@@ -1,43 +1,35 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Calendar, ExternalLink, Pencil, Trash2 } from '../components/Icons';
 import { useAnnouncement, useDeleteAnnouncement } from '../hooks/useAnnouncements';
 import ServiceBadge from '../components/ServiceBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatDate } from '../utils/formatDate';
-import { ArrowLeft, Calendar, ExternalLink, Pencil, Trash2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
 export default function AnnouncementDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: announcement, isLoading, isError } = useAnnouncement(id || '');
-  const deleteMutation = useDeleteAnnouncement();
+  const { data: announcement, isLoading, isError } = useAnnouncement(id);
+  const deleteAnnouncement = useDeleteAnnouncement();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  const handleDelete = async () => {
-    if (!id) return;
-    try {
-      await deleteMutation.mutateAsync(id);
-      navigate('/');
-    } catch {
-      // Error handled by mutation
-    }
-  };
 
   if (isLoading) return <LoadingSpinner />;
 
   if (isError || !announcement) {
     return (
-      <div className="text-center py-16 animate-fade-in-up">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 mb-4">
-          <AlertCircle className="w-8 h-8 text-red-500" />
+      <div className="text-center py-16 animate-fade-in">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🔍</span>
         </div>
-        <h2 className="text-xl font-semibold text-[#2E3440] mb-2">Announcement not found</h2>
-        <p className="text-sm text-[#4C566A] mb-6">
-          The announcement you're looking for doesn't exist or has been removed.
+        <h3 className="text-lg font-semibold text-text-primary mb-2 font-[family-name:var(--font-display)]">
+          Announcement not found
+        </h3>
+        <p className="text-text-secondary text-sm mb-4">
+          The announcement you&apos;re looking for doesn&apos;t exist or has been removed.
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#5E81AC] text-white rounded-lg text-sm font-medium hover:bg-[#4C6A94] transition-colors"
+          className="inline-flex items-center gap-2 text-aws-orange hover:text-aws-orange-hover font-medium text-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to feed
@@ -46,65 +38,77 @@ export default function AnnouncementDetailPage() {
     );
   }
 
+  const handleDelete = async () => {
+    try {
+      await deleteAnnouncement.mutateAsync(announcement.id);
+      navigate('/');
+    } catch (err) {
+      console.error('Failed to delete:', err);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto animate-fade-in-up">
       {/* Back link */}
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm text-[#5E81AC] hover:text-[#4C6A94] transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-text-secondary hover:text-aws-orange transition-colors text-sm font-medium mb-6"
       >
-        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <ArrowLeft className="w-4 h-4" />
         Back to feed
       </Link>
 
       {/* Article */}
-      <article className="bg-white rounded-xl border border-[#E5E9F0] p-6 sm:p-8">
+      <article className="bg-surface rounded-xl border border-border p-8">
         {/* Meta */}
-        <div className="flex items-center gap-3 flex-wrap mb-4">
+        <div className="flex flex-wrap items-center gap-3 mb-5">
           <ServiceBadge service={announcement.service} size="md" />
-          <span className="flex items-center gap-1.5 text-sm text-[#4C566A] font-['JetBrains_Mono']">
+          <div className="flex items-center gap-1.5 text-text-muted text-sm font-[family-name:var(--font-mono)]">
             <Calendar className="w-4 h-4" />
-            {formatDate(announcement.date)}
-          </span>
+            <span>{formatDate(announcement.date)}</span>
+          </div>
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#2E3440] font-['Crimson_Pro'] leading-tight mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-6 font-[family-name:var(--font-display)] leading-tight">
           {announcement.title}
         </h1>
 
         {/* Summary */}
         <div className="prose prose-sm max-w-none">
-          <p className="text-[#4C566A] leading-relaxed text-base whitespace-pre-wrap">
+          <p className="text-text-secondary leading-relaxed text-base whitespace-pre-wrap">
             {announcement.summary}
           </p>
         </div>
 
-        {/* External Link */}
+        {/* External link */}
         {announcement.link && (
           <a
             href={announcement.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-6 px-4 py-2 bg-[#ECEFF4] text-[#5E81AC] rounded-lg text-sm font-medium hover:bg-[#E5E9F0] transition-colors"
+            className="inline-flex items-center gap-2 mt-6 px-4 py-2 bg-aws-orange/10 text-aws-orange rounded-lg text-sm font-medium hover:bg-aws-orange/20 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
-            View on AWS
+            View original announcement
           </a>
         )}
 
+        {/* Divider */}
+        <hr className="my-6 border-border" />
+
         {/* Actions */}
-        <div className="flex items-center gap-3 mt-8 pt-6 border-t border-[#E5E9F0]">
+        <div className="flex items-center gap-3">
           <Link
-            to={`/announcements/${id}/edit`}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#5E81AC] text-white rounded-lg text-sm font-medium hover:bg-[#4C6A94] transition-colors"
+            to={`/announcements/${announcement.id}/edit`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-aws-navy text-white rounded-lg text-sm font-medium hover:bg-aws-navy-light transition-colors"
           >
             <Pencil className="w-4 h-4" />
             Edit
           </Link>
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-error/10 text-error rounded-lg text-sm font-medium hover:bg-error/20 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
             Delete
@@ -114,25 +118,27 @@ export default function AnnouncementDetailPage() {
 
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in-up" style={{ animationDuration: '0.2s' }}>
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-semibold text-[#2E3440] mb-2">Delete announcement?</h3>
-            <p className="text-sm text-[#4C566A] mb-6">
-              This action cannot be undone. The announcement will be permanently removed.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl animate-slide-down">
+            <h3 className="text-lg font-semibold text-text-primary mb-2 font-[family-name:var(--font-display)]">
+              Delete Announcement
+            </h3>
+            <p className="text-text-secondary text-sm mb-6">
+              Are you sure you want to delete this announcement? This action cannot be undone.
             </p>
             <div className="flex items-center gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-sm font-medium text-[#4C566A] hover:text-[#2E3440] transition-colors"
+                className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                disabled={deleteAnnouncement.isPending}
+                className="px-4 py-2 bg-error text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                {deleteAnnouncement.isPending ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

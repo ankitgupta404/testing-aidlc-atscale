@@ -8,4 +8,4 @@ export const docClient = DynamoDBDocumentClient.from(client, {
   },
 });
 
-export const TABLE_NAME = process.env.TABLE_NAME || 'ankit-aidlc-testing-aws-news-table';
+export const TABLE_NAME = process.env.TABLE_NAME || 'canopy-aws-news-table';

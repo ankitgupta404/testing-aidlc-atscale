@@ -2,21 +2,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
 import type { CreateAnnouncementInput, UpdateAnnouncementInput } from '@aws-news-hub/shared';
 
-export function useAnnouncements(params?: {
-  service?: string;
-  search?: string;
-  limit?: number;
-}) {
+export function useAnnouncements(params?: { service?: string; search?: string; limit?: number }) {
   return useQuery({
     queryKey: ['announcements', params],
     queryFn: () => api.listAnnouncements(params),
   });
 }
 
-export function useAnnouncement(id: string) {
+export function useAnnouncement(id: string | undefined) {
   return useQuery({
     queryKey: ['announcement', id],
-    queryFn: () => api.getAnnouncement(id),
+    queryFn: () => api.getAnnouncement(id!),
     enabled: !!id,
   });
 }
@@ -38,9 +34,9 @@ export function useUpdateAnnouncement() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateAnnouncementInput }) =>
       api.updateAnnouncement(id, data),
-    onSuccess: (_, { id }) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
-      queryClient.invalidateQueries({ queryKey: ['announcement', id] });
+      queryClient.invalidateQueries({ queryKey: ['announcement', variables.id] });
     },
   });
 }

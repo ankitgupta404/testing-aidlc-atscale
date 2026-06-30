@@ -4,72 +4,66 @@ import { useDebounce } from '../hooks/useDebounce';
 import FilterBar from '../components/FilterBar';
 import SearchBar from '../components/SearchBar';
 import AnnouncementList from '../components/AnnouncementList';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Zap } from '../components/Icons';
 
 export default function HomePage() {
   const [selectedService, setSelectedService] = useState<string | undefined>(undefined);
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebounce(searchTerm, 300);
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 300);
 
-  const { data, isLoading, isError, error, refetch } = useAnnouncements({
+  const { data, isLoading, isError, error } = useAnnouncements({
     service: selectedService,
     search: debouncedSearch || undefined,
   });
 
+  const announcements = data?.announcements || [];
+
   return (
     <div className="space-y-6">
-      {/* Hero */}
+      {/* Hero section */}
       <div className="animate-fade-in-up">
-        <h1 className="text-3xl sm:text-4xl font-bold text-[#2E3440] font-['Crimson_Pro'] tracking-tight">
-          Latest AWS Announcements
-        </h1>
-        <p className="mt-2 text-[#4C566A] text-sm sm:text-base">
-          Stay up-to-date with the latest service releases, features, and updates from AWS.
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 bg-aws-orange/10 rounded-lg flex items-center justify-center">
+            <Zap className="w-4 h-4 text-aws-orange" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary font-[family-name:var(--font-display)]">
+            Latest AWS News
+          </h1>
+        </div>
+        <p className="text-text-secondary text-sm sm:text-base ml-11 font-[family-name:var(--font-serif)] italic">
+          Stay up-to-date with the latest service releases, features, and announcements
         </p>
       </div>
 
-      {/* Search */}
-      <SearchBar value={searchTerm} onChange={setSearchTerm} />
-
-      {/* Filters */}
+      {/* Filter Bar */}
       <FilterBar
         selectedService={selectedService}
         onServiceChange={setSelectedService}
       />
 
-      {/* Error state */}
-      {isError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 animate-fade-in-up">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-red-800">Failed to load announcements</p>
-            <p className="text-xs text-red-600 mt-1">{(error as Error)?.message || 'Unknown error'}</p>
-          </div>
-          <button
-            onClick={() => refetch()}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Retry
-          </button>
-        </div>
-      )}
+      {/* Search Bar */}
+      <SearchBar
+        value={searchInput}
+        onChange={setSearchInput}
+      />
 
       {/* Results count */}
-      {data && !isLoading && (
-        <div className="flex items-center justify-between animate-fade-in-up stagger-3">
-          <p className="text-xs font-['JetBrains_Mono'] text-[#4C566A]">
-            {data.announcements.length} announcement{data.announcements.length !== 1 ? 's' : ''}
-            {selectedService && ` in ${selectedService}`}
-            {debouncedSearch && ` matching "${debouncedSearch}"`}
+      {!isLoading && !isError && (
+        <div className="flex items-center justify-between animate-fade-in">
+          <p className="text-sm text-text-muted font-[family-name:var(--font-mono)]">
+            {announcements.length} announcement{announcements.length !== 1 ? 's' : ''}
+            {selectedService && <span className="text-aws-orange"> · {selectedService}</span>}
+            {debouncedSearch && <span className="text-aws-orange"> · "{debouncedSearch}"</span>}
           </p>
         </div>
       )}
 
       {/* Announcement List */}
       <AnnouncementList
-        announcements={data?.announcements || []}
+        announcements={announcements}
         isLoading={isLoading}
+        isError={isError}
+        error={error}
       />
     </div>
   );

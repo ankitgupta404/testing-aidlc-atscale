@@ -8,13 +8,14 @@ interface ServiceBadgeProps {
 
 export default function ServiceBadge({ service, size = 'sm' }: ServiceBadgeProps) {
   const colors = SERVICE_BADGE_COLORS[service] || SERVICE_BADGE_COLORS['Other'];
+
   const sizeClasses = size === 'sm'
-    ? 'text-xs px-2 py-0.5'
-    : 'text-sm px-3 py-1';
+    ? 'px-2.5 py-0.5 text-xs'
+    : 'px-3 py-1 text-sm';
 
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-md font-['JetBrains_Mono'] tracking-tight ${colors.bg} ${colors.text} ${sizeClasses} transition-transform hover:scale-105`}
+      className={`inline-flex items-center rounded-full font-medium font-[family-name:var(--font-mono)] ${colors.bg} ${colors.text} ${sizeClasses}`}
     >
       {service}
     </span>

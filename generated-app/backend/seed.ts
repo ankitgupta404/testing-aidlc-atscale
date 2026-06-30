@@ -7,7 +7,7 @@ const docClient = DynamoDBDocumentClient.from(client, {
   marshallOptions: { removeUndefinedValues: true },
 });
 
-const TABLE_NAME = process.env.TABLE_NAME || 'ankit-aidlc-testing-aws-news-table';
+const TABLE_NAME = process.env.TABLE_NAME || 'canopy-aws-news-table';
 
 interface SeedAnnouncement {
   title: string;

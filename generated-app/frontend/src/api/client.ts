@@ -1,15 +1,10 @@
-import type {
-  Announcement,
-  CreateAnnouncementInput,
-  UpdateAnnouncementInput,
-  ListAnnouncementsResponse,
-} from '@aws-news-hub/shared';
+import type { Announcement, CreateAnnouncementInput, UpdateAnnouncementInput, ListAnnouncementsResponse } from '@aws-news-hub/shared';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   if (!API_URL) {
-    throw new Error('API URL not configured');
+    throw new Error('API URL not configured. Set VITE_API_URL environment variable.');
   }
 
   const response = await fetch(`${API_URL}${path}`, {
@@ -26,7 +21,8 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
       const error = await response.json();
       errorMessage = error.error || errorMessage;
     } catch {
-      // ignore parse error
+      // If response is not JSON, use status text
+      errorMessage = response.statusText || errorMessage;
     }
     throw new Error(errorMessage);
   }
@@ -36,12 +32,7 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  listAnnouncements: (params?: {
-    service?: string;
-    search?: string;
-    limit?: number;
-    nextToken?: string;
-  }): Promise<ListAnnouncementsResponse> => {
+  listAnnouncements: (params?: { service?: string; search?: string; limit?: number; nextToken?: string }) => {
     const searchParams = new URLSearchParams();
     if (params?.service) searchParams.set('service', params.service);
     if (params?.search) searchParams.set('search', params.search);
@@ -51,21 +42,14 @@ export const api = {
     return fetchApi<ListAnnouncementsResponse>(`/announcements${query ? `?${query}` : ''}`);
   },
 
-  getAnnouncement: (id: string): Promise<Announcement> =>
-    fetchApi<Announcement>(`/announcements/${id}`),
+  getAnnouncement: (id: string) => fetchApi<Announcement>(`/announcements/${id}`),
 
-  createAnnouncement: (data: CreateAnnouncementInput): Promise<Announcement> =>
-    fetchApi<Announcement>('/announcements', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  createAnnouncement: (data: CreateAnnouncementInput) =>
+    fetchApi<Announcement>('/announcements', { method: 'POST', body: JSON.stringify(data) }),
 
-  updateAnnouncement: (id: string, data: UpdateAnnouncementInput): Promise<Announcement> =>
-    fetchApi<Announcement>(`/announcements/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  updateAnnouncement: (id: string, data: UpdateAnnouncementInput) =>
+    fetchApi<Announcement>(`/announcements/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  deleteAnnouncement: (id: string): Promise<void> =>
+  deleteAnnouncement: (id: string) =>
     fetchApi<void>(`/announcements/${id}`, { method: 'DELETE' }),
 };

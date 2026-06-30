@@ -16,7 +16,7 @@ describe('AwsNewsStack', () => {
   describe('DynamoDB Table', () => {
     test('creates table with correct key schema', () => {
       template.hasResourceProperties('AWS::DynamoDB::Table', {
-        TableName: 'ankit-aidlc-testing-aws-news-table',
+        TableName: 'canopy-aws-news-table',
         KeySchema: [
           { AttributeName: 'PK', KeyType: 'HASH' },
           { AttributeName: 'SK', KeyType: 'RANGE' },
@@ -79,7 +79,7 @@ describe('AwsNewsStack', () => {
   describe('API Gateway', () => {
     test('creates HTTP API with CORS configured', () => {
       template.hasResourceProperties('AWS::ApiGatewayV2::Api', {
-        Name: 'ankit-aidlc-testing-aws-news-http-api',
+        Name: 'canopy-aws-news-http-api',
         ProtocolType: 'HTTP',
         CorsConfiguration: Match.objectLike({
           AllowOrigins: ['*'],

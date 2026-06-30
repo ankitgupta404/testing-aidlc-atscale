@@ -1,5 +1,5 @@
-import { AWS_SERVICES } from '../utils/constants';
 import type { AwsService } from '@aws-news-hub/shared';
+import { AWS_SERVICES } from '../utils/constants';
 
 interface FilterBarProps {
   selectedService: string | undefined;
@@ -9,13 +9,13 @@ interface FilterBarProps {
 export default function FilterBar({ selectedService, onServiceChange }: FilterBarProps) {
   return (
     <div className="animate-fade-in-up stagger-1">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
         <button
           onClick={() => onServiceChange(undefined)}
-          className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`filter-chip flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             !selectedService
-              ? 'bg-[#FF9900] text-[#232F3E] shadow-sm'
-              : 'bg-white text-[#4C566A] border border-[#E5E9F0] hover:border-[#88C0D0] hover:text-[#2E3440]'
+              ? 'bg-aws-navy text-white shadow-md'
+              : 'bg-white text-text-secondary border border-border hover:border-aws-orange hover:text-aws-orange'
           }`}
         >
           All
@@ -24,10 +24,10 @@ export default function FilterBar({ selectedService, onServiceChange }: FilterBa
           <button
             key={service}
             onClick={() => onServiceChange(service === selectedService ? undefined : service)}
-            className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            className={`filter-chip flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               selectedService === service
-                ? 'bg-[#FF9900] text-[#232F3E] shadow-sm'
-                : 'bg-white text-[#4C566A] border border-[#E5E9F0] hover:border-[#88C0D0] hover:text-[#2E3440]'
+                ? 'bg-aws-orange text-white shadow-md'
+                : 'bg-white text-text-secondary border border-border hover:border-aws-orange hover:text-aws-orange'
             }`}
           >
             {service}

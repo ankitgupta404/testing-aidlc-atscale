@@ -1,180 +1,186 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Send } from '../components/Icons';
+import { CreateAnnouncementInputSchema } from '@aws-news-hub/shared';
+import type { AwsService } from '@aws-news-hub/shared';
 import { useCreateAnnouncement } from '../hooks/useAnnouncements';
 import { AWS_SERVICES } from '../utils/constants';
 import { toISODateTime } from '../utils/formatDate';
-import { ArrowLeft, Send, AlertCircle } from 'lucide-react';
-import type { AwsService } from '@aws-news-hub/shared';
-import { CreateAnnouncementInputSchema } from '@aws-news-hub/shared';
 
 export default function CreateAnnouncementPage() {
   const navigate = useNavigate();
-  const createMutation = useCreateAnnouncement();
-
-  const [title, setTitle] = useState('');
-  const [summary, setSummary] = useState('');
-  const [service, setService] = useState<AwsService>('Lambda');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [link, setLink] = useState('');
+  const createAnnouncement = useCreateAnnouncement();
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [formData, setFormData] = useState({
+    title: '',
+    service: '' as AwsService | '',
+    date: new Date().toISOString().split('T')[0],
+    summary: '',
+    link: '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
     const input = {
-      title: title.trim(),
-      summary: summary.trim(),
-      service,
-      date: toISODateTime(date),
-      link: link.trim() || undefined,
+      title: formData.title,
+      service: formData.service as AwsService,
+      date: toISODateTime(formData.date),
+      summary: formData.summary,
+      ...(formData.link ? { link: formData.link } : {}),
     };
 
-    const validation = CreateAnnouncementInputSchema.safeParse(input);
-    if (!validation.success) {
+    const result = CreateAnnouncementInputSchema.safeParse(input);
+    if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      validation.error.issues.forEach(issue => {
-        const field = issue.path[0] as string;
-        fieldErrors[field] = issue.message;
+      result.error.errors.forEach(err => {
+        const field = err.path[0] as string;
+        fieldErrors[field] = err.message;
       });
       setErrors(fieldErrors);
       return;
     }
 
     try {
-      await createMutation.mutateAsync(input);
+      await createAnnouncement.mutateAsync(result.data);
       navigate('/');
-    } catch {
-      setErrors({ form: 'Failed to create announcement. Please try again.' });
+    } catch (err) {
+      setErrors({ submit: err instanceof Error ? err.message : 'Failed to create announcement' });
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto animate-fade-in-up">
+      {/* Back link */}
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm text-[#5E81AC] hover:text-[#4C6A94] transition-colors mb-6 group"
+        className="inline-flex items-center gap-2 text-text-secondary hover:text-aws-orange transition-colors text-sm font-medium mb-6"
       >
-        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <ArrowLeft className="w-4 h-4" />
         Back to feed
       </Link>
 
-      <div className="bg-white rounded-xl border border-[#E5E9F0] p-6 sm:p-8">
-        <h1 className="text-2xl font-bold text-[#2E3440] font-['Crimson_Pro'] mb-6">
+      <div className="bg-surface rounded-xl border border-border p-8">
+        <h1 className="text-2xl font-bold text-text-primary mb-6 font-[family-name:var(--font-display)]">
           Add New Announcement
         </h1>
 
-        {errors.form && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 mb-6">
-            <AlertCircle className="w-4 h-4 text-red-500" />
-            <p className="text-sm text-red-700">{errors.form}</p>
+        {errors.submit && (
+          <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-lg text-error text-sm">
+            {errors.submit}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-[#2E3440] mb-1.5">
-              Title <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              Title <span className="text-error">*</span>
             </label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., AWS Lambda adds support for Python 3.13"
-              maxLength={200}
-              className={`w-full px-4 py-3 rounded-lg border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#88C0D0] ${
-                errors.title ? 'border-red-300 bg-red-50' : 'border-[#E5E9F0] bg-white'
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="e.g., Amazon S3 introduces new storage class"
+              className={`w-full px-4 py-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aws-orange/30 focus:border-aws-orange transition-all ${
+                errors.title ? 'border-error' : 'border-border'
               }`}
+              maxLength={200}
             />
-            {errors.title && <p className="text-xs text-red-600 mt-1">{errors.title}</p>}
+            {errors.title && <p className="mt-1 text-xs text-error">{errors.title}</p>}
           </div>
 
-          {/* Service + Date row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#2E3440] mb-1.5">
-                Service <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={service}
-                onChange={(e) => setService(e.target.value as AwsService)}
-                className="w-full px-4 py-3 rounded-lg border border-[#E5E9F0] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#88C0D0] transition-all duration-200"
-              >
-                {AWS_SERVICES.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#2E3440] mb-1.5">
-                Date <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#88C0D0] ${
-                  errors.date ? 'border-red-300 bg-red-50' : 'border-[#E5E9F0] bg-white'
-                }`}
-              />
-              {errors.date && <p className="text-xs text-red-600 mt-1">{errors.date}</p>}
-            </div>
+          {/* Service */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              AWS Service <span className="text-error">*</span>
+            </label>
+            <select
+              value={formData.service}
+              onChange={(e) => setFormData(prev => ({ ...prev, service: e.target.value as AwsService }))}
+              className={`w-full px-4 py-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aws-orange/30 focus:border-aws-orange transition-all ${
+                errors.service ? 'border-error' : 'border-border'
+              }`}
+            >
+              <option value="">Select a service...</option>
+              {AWS_SERVICES.map(service => (
+                <option key={service} value={service}>{service}</option>
+              ))}
+            </select>
+            {errors.service && <p className="mt-1 text-xs text-error">{errors.service}</p>}
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              Date <span className="text-error">*</span>
+            </label>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+              className={`w-full px-4 py-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aws-orange/30 focus:border-aws-orange transition-all ${
+                errors.date ? 'border-error' : 'border-border'
+              }`}
+            />
+            {errors.date && <p className="mt-1 text-xs text-error">{errors.date}</p>}
           </div>
 
           {/* Summary */}
           <div>
-            <label className="block text-sm font-medium text-[#2E3440] mb-1.5">
-              Summary <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              Summary <span className="text-error">*</span>
             </label>
             <textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="Describe the announcement..."
+              value={formData.summary}
+              onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+              placeholder="Describe the announcement details..."
               rows={5}
               maxLength={2000}
-              className={`w-full px-4 py-3 rounded-lg border text-sm resize-y transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#88C0D0] ${
-                errors.summary ? 'border-red-300 bg-red-50' : 'border-[#E5E9F0] bg-white'
+              className={`w-full px-4 py-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aws-orange/30 focus:border-aws-orange transition-all resize-none ${
+                errors.summary ? 'border-error' : 'border-border'
               }`}
             />
             <div className="flex justify-between mt-1">
-              {errors.summary && <p className="text-xs text-red-600">{errors.summary}</p>}
-              <p className="text-xs text-[#9FA8B7] font-['JetBrains_Mono'] ml-auto">
-                {summary.length}/2000
+              {errors.summary && <p className="text-xs text-error">{errors.summary}</p>}
+              <p className="text-xs text-text-muted ml-auto font-[family-name:var(--font-mono)]">
+                {formData.summary.length}/2000
               </p>
             </div>
           </div>
 
           {/* Link */}
           <div>
-            <label className="block text-sm font-medium text-[#2E3440] mb-1.5">
-              Link <span className="text-[#9FA8B7]">(optional)</span>
+            <label className="block text-sm font-medium text-text-primary mb-1.5">
+              Link <span className="text-text-muted font-normal">(optional)</span>
             </label>
             <input
               type="url"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
+              value={formData.link}
+              onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
               placeholder="https://aws.amazon.com/..."
-              className={`w-full px-4 py-3 rounded-lg border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#88C0D0] ${
-                errors.link ? 'border-red-300 bg-red-50' : 'border-[#E5E9F0] bg-white'
+              className={`w-full px-4 py-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aws-orange/30 focus:border-aws-orange transition-all ${
+                errors.link ? 'border-error' : 'border-border'
               }`}
             />
-            {errors.link && <p className="text-xs text-red-600 mt-1">{errors.link}</p>}
+            {errors.link && <p className="mt-1 text-xs text-error">{errors.link}</p>}
           </div>
 
-          {/* Buttons */}
+          {/* Actions */}
           <div className="flex items-center gap-3 pt-4">
             <button
               type="submit"
-              disabled={createMutation.isPending}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF9900] text-[#232F3E] rounded-lg text-sm font-semibold hover:bg-[#EC8D00] transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md"
+              disabled={createAnnouncement.isPending}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-aws-orange text-white rounded-lg text-sm font-medium hover:bg-aws-orange-hover transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
             >
               <Send className="w-4 h-4" />
-              {createMutation.isPending ? 'Creating...' : 'Create Announcement'}
+              {createAnnouncement.isPending ? 'Creating...' : 'Create Announcement'}
             </button>
             <Link
               to="/"
-              className="px-5 py-2.5 text-sm font-medium text-[#4C566A] hover:text-[#2E3440] transition-colors"
+              className="px-6 py-3 text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             >
               Cancel
             </Link>

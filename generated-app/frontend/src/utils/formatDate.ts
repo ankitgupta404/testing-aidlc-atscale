@@ -1,24 +1,24 @@
 import { format, parseISO } from 'date-fns';
 
-export function formatDate(dateStr: string): string {
+export function formatDate(dateString: string): string {
   try {
-    const date = parseISO(dateStr);
+    const date = parseISO(dateString);
     return format(date, 'MMM d, yyyy');
   } catch {
-    return dateStr;
+    return dateString;
   }
 }
 
-export function formatDateForInput(dateStr: string): string {
+export function formatDateForInput(dateString: string): string {
   try {
-    const date = parseISO(dateStr);
+    const date = parseISO(dateString);
     return format(date, 'yyyy-MM-dd');
   } catch {
-    return dateStr;
+    return '';
   }
 }
 
-export function toISODateTime(dateStr: string): string {
-  // Convert YYYY-MM-DD to ISO datetime
-  return `${dateStr}T00:00:00.000Z`;
+export function toISODateTime(dateString: string): string {
+  // Convert a date input value (YYYY-MM-DD) to ISO datetime
+  return `${dateString}T00:00:00.000Z`;
 }

@@ -16,7 +16,7 @@ export class AwsNewsStack extends cdk.Stack {
 
     // DynamoDB Table
     const table = new dynamodb.Table(this, 'AwsNewsTable', {
-      tableName: 'ankit-aidlc-testing-aws-news-table',
+      tableName: 'canopy-aws-news-table',
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -69,7 +69,7 @@ export class AwsNewsStack extends cdk.Stack {
 
     // HTTP API Gateway
     const httpApi = new apigwv2.HttpApi(this, 'AwsNewsHttpApi', {
-      apiName: 'ankit-aidlc-testing-aws-news-http-api',
+      apiName: 'canopy-aws-news-http-api',
       corsPreflight: {
         allowOrigins: ['*'],
         allowMethods: [
@@ -121,7 +121,7 @@ export class AwsNewsStack extends cdk.Stack {
 
     // S3 Bucket for Frontend
     const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
-      bucketName: `ankit-aidlc-testing-aws-news-frontend-${this.account}`,
+      bucketName: `canopy-aws-news-frontend-${this.account}-${this.region}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
@@ -129,7 +129,7 @@ export class AwsNewsStack extends cdk.Stack {
 
     // CloudFront Distribution
     const distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
-      comment: 'ankit-aidlc-testing-aws-news-cdn',
+      comment: 'canopy-aws-news-cdn',
       defaultBehavior: {
         origin: cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(frontendBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,

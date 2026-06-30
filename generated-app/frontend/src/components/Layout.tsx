@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Newspaper, PlusCircle, Zap } from 'lucide-react';
+import { Newspaper, Plus, Menu, X } from './Icons';
 import { useState } from 'react';
 
 interface LayoutProps {
@@ -13,105 +13,104 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-[#232F3E] text-white sticky top-0 z-50 shadow-lg animate-slide-down">
+      <header className="bg-aws-navy sticky top-0 z-50 shadow-lg">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 bg-[#FF9900] rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3">
-                <Zap className="w-5 h-5 text-[#232F3E]" strokeWidth={2.5} />
+            <Link
+              to="/"
+              className="flex items-center gap-3 group"
+            >
+              <div className="w-9 h-9 bg-aws-orange rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
+                <Newspaper className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <span className="font-bold text-lg tracking-tight">AWS News Hub</span>
+              <div className="flex flex-col">
+                <span className="text-white font-semibold text-lg leading-tight font-[family-name:var(--font-display)]">
+                  AWS News Hub
+                </span>
+                <span className="text-gray-400 text-xs leading-tight hidden sm:block font-[family-name:var(--font-mono)]">
+                  Service Releases & Updates
+                </span>
               </div>
             </Link>
 
-            {/* Desktop Nav */}
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1">
               <Link
                 to="/"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   location.pathname === '/'
-                    ? 'bg-white/10 text-[#FF9900]'
+                    ? 'bg-white/10 text-white'
                     : 'text-gray-300 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Newspaper className="w-4 h-4" />
                 Feed
               </Link>
               <Link
                 to="/announcements/new"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  location.pathname === '/announcements/new'
-                    ? 'bg-[#FF9900] text-[#232F3E]'
-                    : 'bg-[#FF9900]/10 text-[#FF9900] hover:bg-[#FF9900] hover:text-[#232F3E]'
-                }`}
+                className="ml-2 flex items-center gap-2 px-4 py-2 bg-aws-orange hover:bg-aws-orange-hover text-white rounded-lg text-sm font-medium transition-all hover:scale-105 active:scale-95"
               >
-                <PlusCircle className="w-4 h-4" />
-                New Announcement
+                <Plus className="w-4 h-4" />
+                Add Announcement
               </Link>
             </nav>
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="md:hidden text-gray-300 hover:text-white p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
             >
-              <div className="w-5 h-5 flex flex-col justify-center gap-1">
-                <span className={`block h-0.5 w-5 bg-white transition-all duration-200 ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-                <span className={`block h-0.5 w-5 bg-white transition-all duration-200 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
-                <span className={`block h-0.5 w-5 bg-white transition-all duration-200 ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-              </div>
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-
-          {/* Mobile Nav */}
-          {mobileMenuOpen && (
-            <nav className="md:hidden pb-4 animate-slide-down">
-              <div className="flex flex-col gap-1">
-                <Link
-                  to="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    location.pathname === '/' ? 'bg-white/10 text-[#FF9900]' : 'text-gray-300'
-                  }`}
-                >
-                  <Newspaper className="w-4 h-4" />
-                  Feed
-                </Link>
-                <Link
-                  to="/announcements/new"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    location.pathname === '/announcements/new' ? 'bg-[#FF9900] text-[#232F3E]' : 'text-gray-300'
-                  }`}
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  New Announcement
-                </Link>
-              </div>
-            </nav>
-          )}
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/10 animate-slide-down">
+            <div className="px-4 py-3 space-y-2">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-4 py-2 rounded-lg text-sm font-medium ${
+                  location.pathname === '/'
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Feed
+              </Link>
+              <Link
+                to="/announcements/new"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 bg-aws-orange hover:bg-aws-orange-hover text-white rounded-lg text-sm font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                Add Announcement
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      {/* Main content */}
+      <main className="flex-1">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#2E3440] text-gray-400 py-6 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-sm font-['JetBrains_Mono']">
-            &copy; 2025 AWS News Hub
-          </p>
-          <p className="text-xs text-gray-500">
-            Built with React + Lambda + DynamoDB
-          </p>
+      <footer className="bg-white border-t border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-sm text-text-muted font-[family-name:var(--font-mono)]">
+              AWS News Hub — Stay updated with the latest AWS releases
+            </p>
+            <p className="text-xs text-text-muted">
+              Built with React, TypeScript & AWS
+            </p>
+          </div>
         </div>
       </footer>
     </div>

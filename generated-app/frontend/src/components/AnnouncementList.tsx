@@ -1,43 +1,46 @@
 import type { Announcement } from '@aws-news-hub/shared';
 import AnnouncementCard from './AnnouncementCard';
-import { Inbox } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
+import { Inbox } from './Icons';
 
 interface AnnouncementListProps {
   announcements: Announcement[];
-  isLoading?: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
 }
 
-export default function AnnouncementList({ announcements, isLoading }: AnnouncementListProps) {
+export default function AnnouncementList({ announcements, isLoading, isError, error }: AnnouncementListProps) {
   if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (isError) {
     return (
-      <div className="space-y-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className={`bg-white rounded-xl border border-[#E5E9F0] p-6 animate-fade-in-up stagger-${i + 1}`}>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="h-5 w-20 rounded-md skeleton-shimmer" />
-                <div className="h-4 w-24 rounded skeleton-shimmer ml-auto" />
-              </div>
-              <div className="h-6 w-3/4 rounded skeleton-shimmer" />
-              <div className="space-y-2">
-                <div className="h-4 w-full rounded skeleton-shimmer" />
-                <div className="h-4 w-5/6 rounded skeleton-shimmer" />
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="text-center py-16 animate-fade-in">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <h3 className="text-lg font-semibold text-text-primary mb-2 font-[family-name:var(--font-display)]">
+          Unable to load announcements
+        </h3>
+        <p className="text-text-secondary text-sm max-w-md mx-auto">
+          {error?.message || 'Something went wrong. Please try again later.'}
+        </p>
       </div>
     );
   }
 
   if (announcements.length === 0) {
     return (
-      <div className="text-center py-16 animate-fade-in-up">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#E5E9F0] mb-4">
-          <Inbox className="w-8 h-8 text-[#4C566A]" />
+      <div className="text-center py-16 animate-fade-in">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Inbox className="w-8 h-8 text-gray-400" />
         </div>
-        <h3 className="text-lg font-semibold text-[#2E3440] mb-2">No announcements found</h3>
-        <p className="text-sm text-[#4C566A]">
+        <h3 className="text-lg font-semibold text-text-primary mb-2 font-[family-name:var(--font-display)]">
+          No announcements found
+        </h3>
+        <p className="text-text-secondary text-sm">
           Try adjusting your filters or search terms.
         </p>
       </div>
