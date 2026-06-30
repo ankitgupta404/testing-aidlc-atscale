@@ -40,21 +40,27 @@ export class AwsNewsStack extends cdk.Stack {
     });
 
     // Lambda Function
+    const projectRoot = path.join(__dirname, '../..');
     const apiFunction = new NodejsFunction(this, 'AwsNewsApiFunction', {
       functionName: 'canopy-aws-news-api',
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
-      entry: path.join(__dirname, '../../backend/src/index.ts'),
+      entry: path.join(projectRoot, 'backend/src/index.ts'),
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),
       environment: {
         TABLE_NAME: table.tableName,
       },
-      depsLockFilePath: path.join(__dirname, '../../package-lock.json'),
+      projectRoot,
+      depsLockFilePath: path.join(projectRoot, 'package-lock.json'),
       bundling: {
         externalModules: ['@aws-sdk/*'],
         minify: true,
         sourceMap: true,
+        tsconfig: path.join(projectRoot, 'backend/tsconfig.json'),
+        esbuildArgs: {
+          '--alias:@aws-news-hub/shared': path.join(projectRoot, 'shared/src/index.ts'),
+        },
       },
     });
 

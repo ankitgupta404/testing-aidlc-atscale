@@ -10,7 +10,10 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "@aws-news-hub/shared": ["../shared/src/index.ts"]
+    }
   },
   "include": ["src/**/*", "seed.ts"],
   "exclude": ["node_modules", "dist"]

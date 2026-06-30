@@ -1,0 +1,302 @@
+[
+  {
+    "category": "shared",
+    "description": "Shared schemas compile with no TypeScript errors",
+    "steps": ["Run cd shared && npx tsc --noEmit", "Verify exit code 0"],
+    "passes": true
+  },
+  {
+    "category": "shared",
+    "description": "Shared package builds successfully",
+    "steps": ["Run cd shared && npm run build", "Verify dist/ is created"],
+    "passes": true
+  },
+  {
+    "category": "shared",
+    "description": "Zod schemas export all required types",
+    "steps": ["Check shared/src/index.ts exports schemas and types", "Verify AnnouncementSchema, CreateAnnouncementInputSchema exist"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK stack synthesizes successfully",
+    "steps": ["Run cd infrastructure && npx cdk synth", "Verify CloudFormation template is produced"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass - DynamoDB table configuration",
+    "steps": ["Run cd infrastructure && npm test", "Verify table has correct key schema and GSIs"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass - Lambda function configuration",
+    "steps": ["Run cd infrastructure && npm test", "Verify Lambda has Node.js 20 runtime and TABLE_NAME env var"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass - API Gateway configuration",
+    "steps": ["Run cd infrastructure && npm test", "Verify HTTP API has CORS and 5 routes"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass - S3 and CloudFront configuration",
+    "steps": ["Run cd infrastructure && npm test", "Verify S3 bucket and CloudFront distribution"],
+    "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "CDK tests pass - Stack outputs",
+    "steps": ["Run cd infrastructure && npm test", "Verify ApiUrl, FrontendBucketName, CloudFrontUrl, TableName, DistributionId outputs"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "Backend TypeScript compiles with no errors",
+    "steps": ["Run cd backend && npx tsc --noEmit", "Verify exit code 0"],
+    "passes": true
+  },
+  {
+    "category": "backend",
+    "description": "API GET /announcements returns list of announcements",
+    "steps": ["curl -s $API_URL/announcements", "Verify response has announcements array and nextToken"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API GET /announcements?service=Lambda filters by service",
+    "steps": ["curl -s $API_URL/announcements?service=Lambda", "Verify all returned items have service=Lambda"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API GET /announcements/:id returns single announcement",
+    "steps": ["curl -s $API_URL/announcements/:id", "Verify response has all announcement fields"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API POST /announcements creates a new announcement",
+    "steps": ["POST valid body to $API_URL/announcements", "Verify 201 response with created announcement"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API PUT /announcements/:id updates an announcement",
+    "steps": ["PUT valid body to $API_URL/announcements/:id", "Verify 200 response with updated fields"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API DELETE /announcements/:id deletes an announcement",
+    "steps": ["DELETE $API_URL/announcements/:id", "Verify 204 response"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API returns 404 for non-existent announcement",
+    "steps": ["GET $API_URL/announcements/non-existent-id", "Verify 404 with error message"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API returns 400 for invalid create input",
+    "steps": ["POST invalid body to $API_URL/announcements", "Verify 400 with validation error"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "DynamoDB table has seeded data",
+    "steps": ["aws dynamodb scan --table-name ankit-aidlc-testing-aws-news-table --max-items 1", "Verify items exist"],
+    "passes": false
+  },
+  {
+    "category": "backend",
+    "description": "API search returns filtered results",
+    "steps": ["curl -s $API_URL/announcements?search=Lambda", "Verify results match search term"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Frontend builds successfully with Vite",
+    "steps": ["Run cd frontend && npm run build", "Verify dist/ folder created"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage loads and shows header with AWS News Hub",
+    "steps": ["Navigate to http://localhost:6174", "Take screenshot", "Verify header is visible"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage shows filter bar with service categories",
+    "steps": ["Navigate to http://localhost:6174", "Verify filter buttons are visible (All, Lambda, S3, etc.)"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage shows search bar",
+    "steps": ["Navigate to http://localhost:6174", "Verify search input is present"],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Homepage shows announcement cards when API is available",
+    "steps": ["Navigate to http://localhost:6174 with API connected", "Verify announcement cards display"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Clicking a filter button updates the feed",
+    "steps": ["Click 'Lambda' filter", "Verify only Lambda announcements show"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search bar filters announcements with debounce",
+    "steps": ["Type in search bar", "Wait 300ms", "Verify filtered results"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Clicking announcement card navigates to detail page",
+    "steps": ["Click an announcement card", "Verify URL changes to /announcements/:id"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Announcement detail page shows full content",
+    "steps": ["Navigate to /announcements/:id", "Verify title, date, service badge, and summary"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Detail page has Edit and Delete buttons",
+    "steps": ["Navigate to /announcements/:id", "Verify Edit and Delete buttons are present"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create announcement page renders form",
+    "steps": ["Navigate to /announcements/new", "Verify form with title, service, date, summary, link fields"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create form validates required fields",
+    "steps": ["Submit empty form", "Verify validation errors appear"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create form submits and redirects on success",
+    "steps": ["Fill form with valid data", "Submit", "Verify redirect to home"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Edit page pre-populates form with existing data",
+    "steps": ["Navigate to /announcements/:id/edit", "Verify form fields are populated"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Edit form saves changes and redirects",
+    "steps": ["Modify fields", "Submit", "Verify changes saved"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete confirmation dialog appears on delete click",
+    "steps": ["Click Delete button", "Verify confirmation modal shows"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Delete removes announcement and redirects",
+    "steps": ["Confirm delete", "Verify redirect to home and item removed"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mobile responsive layout works",
+    "steps": ["Set viewport to 375x812", "Verify single column layout"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Navigation works between all pages",
+    "steps": ["Click Feed, New Announcement links", "Verify correct pages load"],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "404 page shows for invalid announcement ID",
+    "steps": ["Navigate to /announcements/invalid-uuid", "Verify not found message"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Homepage has polished layout with proper spacing",
+    "steps": ["Take screenshot of homepage", "Verify clean layout, proper padding, card spacing"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Typography uses custom fonts (Space Grotesk, Crimson Pro, JetBrains Mono)",
+    "steps": ["Inspect font usage", "Verify non-default fonts are loaded"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Service badges have distinct colors per service",
+    "steps": ["View multiple announcement cards", "Verify badges have different colors"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Cards have hover effects and transitions",
+    "steps": ["Hover over announcement card", "Verify shadow/border transition"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Header has proper dark background with orange accent",
+    "steps": ["View header", "Verify #232F3E background and #FF9900 accent"],
+    "passes": true
+  },
+  {
+    "category": "style",
+    "description": "Loading state shows skeleton shimmer animation",
+    "steps": ["Trigger loading state", "Verify skeleton cards with animation"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Form inputs have focus ring and error states",
+    "steps": ["Focus inputs", "Verify ring color", "Submit invalid to see error state"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Entry animations play on page load (staggered fade-in)",
+    "steps": ["Load homepage fresh", "Verify staggered fade-in animation"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Empty state shows helpful message with icon",
+    "steps": ["Filter to empty results", "Verify empty state component"],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Footer is properly styled at bottom of page",
+    "steps": ["Scroll to bottom", "Verify footer with copyright and tech stack"],
+    "passes": true
+  }
+]
