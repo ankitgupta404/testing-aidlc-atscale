@@ -4,7 +4,7 @@ import {
   X, Calendar, Target, Zap, Bug, BookOpen, CheckSquare, Layers,
   ArrowLeft, MessageSquare, Send, Edit2, Trash2, User,
 } from '../components/icons';
-import { useIssues, useUpdateIssue } from '../api/issues';
+import { useIssues, useUpdateIssue, useDeleteIssue } from '../api/issues';
 import { useComments, useCreateComment, useDeleteComment } from '../api/comments';
 import { useSprints } from '../api/sprints';
 import { useEpics } from '../api/epics';
@@ -30,6 +30,7 @@ export function IssueDetailPage() {
   const { data: sprints } = useSprints(pid);
   const { data: epics } = useEpics(pid);
   const updateIssue = useUpdateIssue();
+  const deleteIssue = useDeleteIssue();
   const createComment = useCreateComment();
   const deleteComment = useDeleteComment();
 
@@ -41,6 +42,7 @@ export function IssueDetailPage() {
   const [editingDescription, setEditingDescription] = useState(false);
   const [descriptionDraft, setDescriptionDraft] = useState('');
   const [newComment, setNewComment] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
 
@@ -146,12 +148,21 @@ export function IssueDetailPage() {
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-lg hover:bg-bark-100 transition-colors"
-        >
-          <X className="w-5 h-5 text-bark-500" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="p-2 rounded-lg hover:bg-rust/10 transition-colors group"
+            title="Delete issue"
+          >
+            <Trash2 className="w-4 h-4 text-bark-400 group-hover:text-rust" />
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-lg hover:bg-bark-100 transition-colors"
+          >
+            <X className="w-5 h-5 text-bark-500" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -548,6 +559,39 @@ export function IssueDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-sm w-full animate-scale-in">
+            <h3 className="font-display font-semibold text-bark-900 text-lg mb-2">Delete issue?</h3>
+            <p className="text-sm text-bark-500 mb-5">
+              This will permanently delete <span className="font-mono font-medium text-bark-700">{issue.key}</span>.
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-bark-600 hover:bg-bark-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteIssue.mutate(issue.id, {
+                    onSuccess: () => navigate(-1),
+                  });
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-rust hover:bg-rust/90 rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
