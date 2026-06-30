@@ -37,3 +37,17 @@ screenshots/
 # Build artifacts
 *.js.map
 *.d.ts.map
+
+# Test helper scripts
+test-*.mjs
+test-*.js
+e2e-test-*.mjs
+verify-*.mjs
+wait-screenshot.mjs
+test-results/
+e2e-tests/
+
+# Temp/generated files
+agent_state.json
+claude_log_*.txt
+lambda.zip
