@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Settings, Layout, Activity } from '../components/icons';
 import { useProjectContext } from '../context/ProjectContext';
-import { STATUS_LABELS, SEED_USERS } from '../utils/constants';
+import { useProject } from '../api/projects';
+import { STATUS_LABELS, SEED_USERS, DEFAULT_PROJECT_ID } from '../utils/constants';
 import { cn, getUserInitials, getAvatarColor, formatDate } from '../utils/helpers';
 
 type Tab = 'general' | 'board' | 'members';
@@ -16,7 +18,11 @@ const BOARD_COLUMNS = [
 ];
 
 export function SettingsPage() {
+  const { projectId: paramProjectId } = useParams();
   const { currentProject } = useProjectContext();
+  const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
+  const { data: fetchedProject } = useProject(projectId);
+  const project = currentProject || fetchedProject;
   const [activeTab, setActiveTab] = useState<Tab>('general');
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -64,7 +70,7 @@ export function SettingsPage() {
                   <input
                     type="text"
                     readOnly
-                    value={currentProject?.name || 'No project selected'}
+                    value={project?.name || 'No project selected'}
                     className="w-full px-3 py-2 border border-bark-200 rounded-lg text-sm bg-bark-50 text-bark-700 cursor-default"
                   />
                 </div>
@@ -73,7 +79,7 @@ export function SettingsPage() {
                   <input
                     type="text"
                     readOnly
-                    value={currentProject?.key || '-'}
+                    value={project?.key || '-'}
                     className="w-full px-3 py-2 border border-bark-200 rounded-lg text-sm bg-bark-50 text-bark-700 font-mono cursor-default"
                   />
                 </div>
@@ -81,7 +87,7 @@ export function SettingsPage() {
                   <label className="block text-sm font-medium text-bark-600 mb-1">Description</label>
                   <textarea
                     readOnly
-                    value={currentProject?.description || 'No description'}
+                    value={project?.description || 'No description'}
                     rows={3}
                     className="w-full px-3 py-2 border border-bark-200 rounded-lg text-sm bg-bark-50 text-bark-700 resize-none cursor-default"
                   />
@@ -92,7 +98,7 @@ export function SettingsPage() {
                     <input
                       type="text"
                       readOnly
-                      value={currentProject?.createdAt ? formatDate(currentProject.createdAt) : '-'}
+                      value={project?.createdAt ? formatDate(project.createdAt) : '-'}
                       className="w-full px-3 py-2 border border-bark-200 rounded-lg text-sm bg-bark-50 text-bark-700 cursor-default"
                     />
                   </div>
@@ -101,7 +107,7 @@ export function SettingsPage() {
                     <input
                       type="text"
                       readOnly
-                      value={currentProject?.updatedAt ? formatDate(currentProject.updatedAt) : '-'}
+                      value={project?.updatedAt ? formatDate(project.updatedAt) : '-'}
                       className="w-full px-3 py-2 border border-bark-200 rounded-lg text-sm bg-bark-50 text-bark-700 cursor-default"
                     />
                   </div>

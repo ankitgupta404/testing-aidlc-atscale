@@ -4,6 +4,7 @@ import {
   Milestone, Layers, Megaphone, Settings, Trees
 } from '../icons';
 import { useProjectContext } from '../../context/ProjectContext';
+import { DEFAULT_PROJECT_ID } from '../../utils/constants';
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -21,7 +22,8 @@ const PROJECT_NAV = [
 export function Sidebar() {
   const { currentProject } = useProjectContext();
   const { projectId } = useParams();
-  const activeProjectId = projectId || currentProject?.id;
+  const activeProjectId = projectId || currentProject?.id || DEFAULT_PROJECT_ID;
+  const projectLabel = currentProject?.name || 'Canopy Platform';
 
   return (
     <aside className="hidden md:flex flex-col w-60 bg-bark-800 text-bark-100 h-screen sticky top-0 overflow-y-auto">
@@ -70,7 +72,7 @@ export function Sidebar() {
           <>
             <div className="pt-4 pb-2 px-3">
               <p className="text-xs font-semibold text-bark-500 uppercase tracking-wider">
-                {currentProject?.name || 'Project'}
+                {projectLabel}
               </p>
             </div>
             {PROJECT_NAV.map(item => (

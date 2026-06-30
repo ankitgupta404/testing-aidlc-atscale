@@ -75,7 +75,7 @@ exports[`CanopyStack Snapshot matches snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ea207eb3c4e3fbf8dd9a7e25432c650a78c64dbaad9f5dbc9d78b879414cb196.zip",
+          "S3Key": "96b7b33c5bfb6b68df8b40f73927d7d17412a500c46ce65910aeda844797e016.zip",
         },
         "Environment": {
           "Variables": {
