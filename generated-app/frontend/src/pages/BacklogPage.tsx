@@ -45,7 +45,6 @@ export function BacklogPage() {
   const [statusFilter, setStatusFilter] = useState<IssueStatus | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<IssuePriority | null>(null);
   const [typeFilter, setTypeFilter] = useState<IssueType | null>(null);
-  const [expandedIssueId, setExpandedIssueId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Create form state
@@ -300,13 +299,13 @@ export function BacklogPage() {
                 ) : (
                   group.issues.map((issue: Issue) => (
                     <div key={issue.id}>
-                      <button
-                        onClick={() => setExpandedIssueId(expandedIssueId === issue.id ? null : issue.id)}
-                        className="w-full flex items-center gap-4 px-5 py-3 hover:bg-bark-50 transition-colors text-left"
+                      <div
+                        className="w-full flex items-center gap-4 px-5 py-3 hover:bg-bark-50 transition-colors text-left cursor-pointer"
+                        onClick={() => navigate(`/issues/${issue.key}`)}
                       >
                         <span className="font-mono text-xs text-bark-500 w-20 shrink-0">{issue.key}</span>
                         <span className="mr-1 shrink-0">{TYPE_ICONS[issue.type]}</span>
-                        <span className="text-sm text-bark-800 truncate flex-1">{issue.title}</span>
+                        <span className="text-sm text-bark-800 truncate flex-1 hover:text-canopy-700 transition-colors">{issue.title}</span>
                         <span className={cn('text-xs font-medium', PRIORITY_COLORS[issue.priority])}>
                           {PRIORITY_LABELS[issue.priority]}
                         </span>
@@ -326,45 +325,7 @@ export function BacklogPage() {
                             {issue.storyPoints} SP
                           </span>
                         )}
-                      </button>
-                      {expandedIssueId === issue.id && (
-                        <div className="px-5 py-4 bg-bark-50 border-t border-bark-100">
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <span className="text-bark-500 text-xs">Status</span>
-                              <div className="mt-1">
-                                <span className={cn('px-2 py-0.5 rounded text-xs font-medium', STATUS_COLORS[issue.status])}>
-                                  {STATUS_LABELS[issue.status]}
-                                </span>
-                              </div>
-                            </div>
-                            <div>
-                              <span className="text-bark-500 text-xs">Assignee</span>
-                              <p className="mt-1 text-bark-800">{getUserName(issue.assigneeId)}</p>
-                            </div>
-                            <div>
-                              <span className="text-bark-500 text-xs">Type</span>
-                              <p className="mt-1 text-bark-800">{TYPE_LABELS[issue.type]}</p>
-                            </div>
-                            <div>
-                              <span className="text-bark-500 text-xs">Points</span>
-                              <p className="mt-1 text-bark-800">{issue.storyPoints || '-'}</p>
-                            </div>
-                          </div>
-                          {issue.description && (
-                            <div className="mt-3">
-                              <span className="text-bark-500 text-xs">Description</span>
-                              <p className="mt-1 text-sm text-bark-700 whitespace-pre-wrap">{issue.description}</p>
-                            </div>
-                          )}
-                          <button
-                            onClick={() => navigate(`/projects/${projectId}/issues/${issue.id}`)}
-                            className="mt-3 text-xs text-canopy-600 hover:text-canopy-700 font-medium"
-                          >
-                            View full detail →
-                          </button>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   ))
                 )}

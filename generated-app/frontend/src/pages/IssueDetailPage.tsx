@@ -102,9 +102,9 @@ export function IssueDetailPage() {
   };
 
   const handleAddComment = () => {
-    if (!newComment.trim() || !issueId) return;
+    if (!newComment.trim() || !resolvedIssueId) return;
     createComment.mutate({
-      issueId,
+      issueId: resolvedIssueId,
       data: {
         authorId: SEED_USERS[0].id,
         body: newComment.trim(),

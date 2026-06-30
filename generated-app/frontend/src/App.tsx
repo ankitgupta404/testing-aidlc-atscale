@@ -26,6 +26,7 @@ export default function App() {
             <Route path="/projects/:projectId/epics" element={<EpicsPage />} />
             <Route path="/projects/:projectId/settings" element={<SettingsPage />} />
             <Route path="/projects/:projectId/issues/:issueId" element={<IssueDetailPage />} />
+            <Route path="/issues/:issueId" element={<IssueDetailPage />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
           </Route>
         </Routes>

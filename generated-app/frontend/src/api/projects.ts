@@ -29,9 +29,9 @@ export function useProjects() {
 export function useProject(id: string | undefined) {
   return useQuery({
     queryKey: ['projects', id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Project> => {
       const data = await api.get<ProjectResponse>(`/api/projects/${id}`);
-      return data.project || data.data || data;
+      return (data.project || data.data || data) as Project;
     },
     enabled: !!id,
   });

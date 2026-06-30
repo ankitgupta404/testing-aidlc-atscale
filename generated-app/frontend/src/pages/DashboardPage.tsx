@@ -163,7 +163,7 @@ export function DashboardPage() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => [`${value} issues`, '']} />
+                    <Tooltip formatter={(value) => [`${value} issues`, '']} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -195,7 +195,7 @@ export function DashboardPage() {
                 <YAxis tick={{ fontSize: 11, fill: '#78716c' }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip
                   contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                  formatter={(value: number, name: string) => [value + ' pts', name === 'committed' ? 'Committed' : 'Completed']}
+                  formatter={(value, name) => [value + ' pts', name === 'committed' ? 'Committed' : 'Completed']}
                 />
                 <Bar dataKey="committed" fill="#bbf7d0" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="completed" fill="#16a34a" radius={[4, 4, 0, 0]} />
@@ -222,7 +222,7 @@ export function DashboardPage() {
                 <YAxis tick={{ fontSize: 11, fill: '#78716c' }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip
                   contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                  formatter={(value: number) => [value + ' pts']}
+                  formatter={(value) => [value + ' pts']}
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line type="monotone" dataKey="ideal" stroke="#a8a29e" strokeDasharray="5 5" dot={false} strokeWidth={2} />

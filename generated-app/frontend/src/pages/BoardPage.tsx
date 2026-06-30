@@ -370,7 +370,7 @@ export function BoardPage() {
               key={col.status}
               column={col}
               issues={columnIssues[col.status] || []}
-              onCardClick={(issue) => navigate(`/projects/${projectId}/issues/${issue.id}`)}
+              onCardClick={(issue) => navigate(`/issues/${issue.key}`)}
             />
           ))}
         </div>
@@ -406,7 +406,7 @@ function BoardColumn({ column, issues, onCardClick }: BoardColumnProps) {
   return (
     <div
       ref={setNodeRef}
-      className="flex-shrink-0 w-[280px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col"
+      className="flex-shrink-0 w-[240px] xl:w-[260px] bg-bark-50/80 rounded-xl border border-bark-200 flex flex-col"
     >
       {/* Column header */}
       <div className="px-4 py-3 border-b border-bark-200">
