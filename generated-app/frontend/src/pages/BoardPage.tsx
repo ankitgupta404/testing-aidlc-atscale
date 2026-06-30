@@ -20,7 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Filter, Plus, GripVertical } from '../components/icons';
-import { useIssues, useMoveIssue } from '../api/issues';
+import { useIssues, useMoveIssue, useCreateIssue } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import {
   STATUS_LABELS, PRIORITY_LABELS, SEED_USERS, DEFAULT_PROJECT_ID,
@@ -156,6 +156,7 @@ export function BoardPage() {
 
   const { data: issuesData, isLoading } = useIssues(projectId);
   const moveIssueMutation = useMoveIssue();
+  const createIssueMutation = useCreateIssue();
   const issues = issuesData || [];
 
   // Local state for optimistic updates
@@ -290,6 +291,27 @@ export function BoardPage() {
     setLocalIssues(null);
   }, []);
 
+  const handleQuickCreate = useCallback((title: string, status: IssueStatus) => {
+    const currentUserId = localStorage.getItem('canopy-current-user') || SEED_USERS[0].id;
+    createIssueMutation.mutate(
+      {
+        projectId: projectId!,
+        data: {
+          title,
+          type: 'task',
+          status,
+          priority: 'medium',
+          reporterId: currentUserId,
+          labels: [],
+          order: (issues?.length || 0) + 1,
+        },
+      },
+      {
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['issues'] }),
+      }
+    );
+  }, [projectId, issues, createIssueMutation, queryClient]);
+
   if (isLoading) {
     return (
       <div className="max-w-full mx-auto animate-fade-in">
@@ -393,6 +415,7 @@ export function BoardPage() {
               column={col}
               issues={columnIssues[col.status] || []}
               onCardClick={(issue) => navigate(`/issues/${issue.key}`)}
+              onQuickCreate={handleQuickCreate}
               animationDelay={idx * 60}
             />
           ))}
@@ -418,14 +441,25 @@ interface BoardColumnProps {
   column: { status: IssueStatus; label: string; color: string };
   issues: Issue[];
   onCardClick: (issue: Issue) => void;
+  onQuickCreate?: (title: string, status: IssueStatus) => void;
   animationDelay?: number;
 }
 
-function BoardColumn({ column, issues, onCardClick, animationDelay = 0 }: BoardColumnProps) {
+function BoardColumn({ column, issues, onCardClick, onQuickCreate, animationDelay = 0 }: BoardColumnProps) {
   const { setNodeRef } = useSortable({
     id: column.status,
     data: { type: 'column', status: column.status },
   });
+  const [quickAdd, setQuickAdd] = useState(false);
+  const [quickTitle, setQuickTitle] = useState('');
+
+  const handleQuickSubmit = () => {
+    if (quickTitle.trim() && onQuickCreate) {
+      onQuickCreate(quickTitle.trim(), column.status);
+      setQuickTitle('');
+      setQuickAdd(false);
+    }
+  };
 
   return (
     <div
@@ -463,6 +497,46 @@ function BoardColumn({ column, issues, onCardClick, animationDelay = 0 }: BoardC
             ))
           )}
         </SortableContext>
+
+        {/* Quick add */}
+        {quickAdd ? (
+          <div className="mt-1">
+            <input
+              type="text"
+              autoFocus
+              placeholder="Issue title..."
+              value={quickTitle}
+              onChange={e => setQuickTitle(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleQuickSubmit();
+                if (e.key === 'Escape') { setQuickAdd(false); setQuickTitle(''); }
+              }}
+              className="w-full px-3 py-2 text-sm border border-bark-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-canopy-500 bg-white"
+            />
+            <div className="flex gap-1 mt-1">
+              <button
+                onClick={handleQuickSubmit}
+                className="text-xs px-2 py-1 bg-canopy-600 text-white rounded font-medium hover:bg-canopy-700"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => { setQuickAdd(false); setQuickTitle(''); }}
+                className="text-xs px-2 py-1 text-bark-500 hover:text-bark-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setQuickAdd(true)}
+            className="w-full mt-1 flex items-center gap-1.5 px-3 py-2 text-xs text-bark-400 hover:text-bark-600 hover:bg-bark-100 rounded-lg transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add issue</span>
+          </button>
+        )}
       </div>
     </div>
   );
