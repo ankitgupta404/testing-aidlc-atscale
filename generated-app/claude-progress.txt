@@ -1,166 +1,187 @@
-# Canopy Project Progress - COMPLETE
+# Canopy - Full Featured Project Management Application
+## Progress Tracker (Final)
 
-## All Phase Gates PASSING
-1. `shared/` compiles: `cd shared && npx tsc --noEmit` - PASS
-2. `infrastructure/` synths: `cd infrastructure && npx cdk synth` - PASS
-3. `infrastructure/` tests: 11/11 passing
-4. `backend/` compiles: `cd backend && npx tsc --noEmit` - PASS
-5. `frontend/` builds: `cd frontend && npx vite build` - PASS (5s, code-split)
+## Status: COMPLETE ✅
+
+All phase gates pass:
+1. ✅ shared/ compiles: `cd shared && npx tsc --noEmit`
+2. ✅ infrastructure/ synths: `cd infrastructure && npx cdk synth`
+3. ✅ infrastructure/ tests: 11/11 passing
+4. ✅ frontend/ builds: `cd frontend && npx vite build`
+5. ✅ All API endpoints verified working via curl
+6. ✅ All pages screenshot verified with no console errors
 
 ## Architecture
-- **Monorepo**: shared/ + backend/ + infrastructure/ + frontend/
-- **Deployed API**: https://xcu2fdrr5f.execute-api.us-east-1.amazonaws.com
-- **Deployed Stack**: AnkitAidlcTestingCanopyStack
-- **DynamoDB Table**: canopy-ankit-aidlc-testing-canopy-table
-- **Frontend**: Vite proxy -> deployed API (CORS bypass)
 
-## Completed Features
+### Monorepo Structure
+```
+generated-app/
+├── shared/          - Zod schemas, types, endpoint definitions
+├── infrastructure/  - CDK stack (DynamoDB, Lambda, API GW, S3, CloudFront)
+├── backend/         - Lambda handler with path-based routing
+├── frontend/        - React 18 + Vite 7 + Tailwind CSS v4
+└── e2e-tests/       - Playwright test files
+```
 
-### Phase 1: Shared Contract
-- All Zod schemas: project, issue, sprint, epic, comment, announcement, user, board, dashboard, api
-- Inferred TypeScript types
-- Compiles cleanly
+### Shared Package (@canopy/shared)
+- Zod schemas: Project, Issue, Sprint, Epic, Announcement, Comment
+- TypeScript types exported via inference
+- Endpoint route map
+- Build: `tsc` emits to `dist/`
 
-### Phase 2a: Infrastructure (CDK)
-- DynamoDB (single-table, 3 GSIs)
-- Lambda (Node.js 20, NodejsFunction with esbuild bundling)
-- API Gateway HTTP API
-- S3 + CloudFront (for static hosting)
-- 11 CDK tests passing (snapshot + assertions)
+### Infrastructure (CDK)
+- DynamoDB single-table design (canopy-ankit-aidlc-testing-canopy-table)
+- Lambda Node.js 20 with bundled esbuild (NodejsFunction)
+- API Gateway HTTP API with CORS
+- S3 + CloudFront for static frontend hosting
+- SSM parameter for deploy state
+- Tests: 11 passing (snapshot + fine-grained assertions)
 
-### Phase 2b: Backend
-- Lambda handler with path-based routing
-- Full CRUD: projects, issues, sprints, epics, comments, announcements
-- Seed data endpoint
-- DynamoDB operations (single-table design)
-- All API endpoints verified working
+### Backend (Lambda)
+Path-based router handling all API routes:
+- GET/POST /api/projects
+- GET /api/projects/:id
+- GET/POST /api/projects/:id/issues
+- PUT /api/issues/:id (status, priority, assignee updates)
+- PUT /api/issues/:id/move (drag-and-drop status changes)
+- GET/POST /api/projects/:id/sprints
+- PUT /api/sprints/:id
+- GET/POST /api/projects/:id/epics
+- GET/POST /api/announcements
+- PUT/DELETE /api/announcements/:id
+- GET/POST /api/issues/:id/comments
+- DELETE /api/comments/:id
+- POST /api/seed (seed database)
 
-### Phase 3: Frontend
-- React 19 + Vite 7 + Tailwind CSS v4 + TanStack Query v5
-- API wired via Vite proxy to deployed backend
-- All pages working with REAL DATA from deployed API
+### Frontend
+- React 18 + React Router v6 + TanStack Query v5
+- Vite 7 dev server with proxy to deployed API
+- Tailwind CSS v4 with custom theme
+- @dnd-kit for Kanban board drag-and-drop
+- Recharts for dashboard charts
 
-### Phase 4: Polish (Complete)
+## Pages Implemented
 
-#### Dashboard
-- 4 stats cards (total issues, completed, in progress, sprint progress)
-- Recharts PieChart (donut) for status distribution with legend
-- Recharts BarChart for sprint velocity (committed vs completed)
-- Recharts LineChart for burndown (ideal vs actual)
-- Sprint progress bar with status breakdown grid
-- Announcements widget with relative timestamps
-- Auto-selects default project on load
+### Dashboard (/)
+- Stats cards: Total Issues, Completed, In Progress, Sprint Progress
+- Status Distribution pie chart
+- Sprint Velocity bar chart
+- Burndown line chart with active sprint
+- Sprint progress bar
+- Announcements sidebar
+- Loading skeleton
 
-#### Board (Kanban)
-- @dnd-kit drag-and-drop with SortableContext, useSortable
-- DragOverlay with rotation effect
-- GripVertical drag handles
-- Priority-colored left borders on cards
-- Story points badge
-- Filters panel (assignee, priority) with toggle
-- Optimistic state management for smooth drag
-- Persists moves to API via /api/issues/:id/move
+### Projects (/projects)
+- Project cards with search filter
+- Create project modal
+- Navigate to project-specific views
 
-#### Backlog
-- Sprint-grouped issue list (Active/Planning/Unassigned)
-- Create issue form (title, type, priority, assignee, points)
+### Backlog (/projects/:id/backlog)
+- Grouped by sprint (Active, Planning, Backlog)
 - Search by title/key
-- Filter chips (status, priority, type)
-- Collapsible sections
-- Issue rows link to detail page
+- Filter pills: status, priority, type
+- Issue rows with key, type icon, title, priority, story points
+- Click row navigates to issue detail
+- Create Issue button with form
 
-#### Sprint Page
-- Sprint cards with Active/Planning/Completed badges
-- Progress bars (% complete based on done issues)
-- Expandable "Show issues" section per sprint
-- Issues link to detail page
-- Create Sprint modal (name, goal, dates)
+### Board (/projects/:id/board)
+- 5 Kanban columns (Backlog, To Do, In Progress, In Review, Done)
+- Drag-and-drop with @dnd-kit (optimistic updates)
+- Cards show key, title, priority border, story points, assignee avatar
+- Filter panel (assignee, priority)
+- Staggered column entrance animation
+- Skeleton loading state
+- Click card navigates to issue detail
 
-#### Epics Page
-- Card grid with epic-colored borders
-- Progress bars colored to match epic
-- Expandable issue lists per epic
-- Status badges (Draft, In Progress, Done)
-- Create Epic modal (name, description, color picker, status)
+### Sprints (/projects/:id/sprints)
+- Sprint cards with status badges (Active, Planning, Completed)
+- Goal, date range, issue count, completion percentage
+- Progress bar
+- Expandable issue lists
+- Create Sprint modal
 
-#### Issue Detail
-- Two-column layout (content + metadata sidebar)
-- Inline title editing (click to edit)
-- Description with edit/save/cancel
-- Comments section with add comment (Ctrl+Enter)
-- Metadata sidebar cards: Status, Priority, Assignee, Sprint, Epic, Points/Type, Created
-- Supports both UUID and key-based URLs (CAN-7 style)
-- Back navigation
+### Epics (/projects/:id/epics)
+- Epic cards with color-coded left border
+- Status badge, description
+- Progress bar (issues done / total)
+- Expandable issue lists
+- Create Epic modal
 
-#### Settings
+### Issue Detail (/issues/:key or /projects/:id/issues/:id)
+- Two-column layout
+- Editable title (click or press E)
+- Editable description
+- Status, priority, assignee selectors (clickable to edit)
+- Sprint and Epic assignments
+- Story points, type, created date
+- Comments section with add/delete
+- Keyboard shortcuts: E to edit, M to assign to me
+
+### Settings (/projects/:id/settings)
 - Three tabs: General, Board, Members
-- Project details display
-- Board column mapping table
-- Team members list with role badges
-- Application info section
+- Project details
+- Board column configuration
+- Team members with roles
 
-#### Announcements
-- Full CRUD (create, read, update, delete)
-- Priority levels (info, warning, critical) with icons
-- Pin to top functionality
+### Announcements (/announcements)
+- CRUD operations (create, edit, delete)
+- Priority levels with icons
 - Author avatars and relative timestamps
-- Edit modal with all fields
 
-#### Command Palette (Cmd+K)
-- Opens as overlay modal
-- Shows navigation shortcuts when empty
-- Searches issues by title/key
-- Searches projects by name/key
+## Features
+
+### Command Palette (Cmd+K)
+- Global search for issues and projects
+- Navigation shortcuts when empty
 - Keyboard navigation (arrows, Enter, Escape)
-- scale-in animation
 
-#### Dark Mode
-- ThemeProvider with localStorage persistence
-- Moon/Sun toggle in sidebar footer
-- CSS overrides for backgrounds, text, borders
+### Keyboard Shortcuts
+- G+D/B/L/S/E/A/P: Navigate to pages
+- Shift+?: Show help modal
+- E: Edit title (issue detail)
+- M: Assign to me (issue detail)
+- Cmd+K: Command palette
+- Ctrl+Enter: Submit comment
+
+### User Switcher
+- Dropdown in header with 5 users
+- Persisted to localStorage
+- Changes context for comments and assignments
+
+### Dark Mode
+- Toggle in sidebar footer
+- Comprehensive CSS overrides
 - Respects system preference
+- Persisted to localStorage
 
-#### Mobile
-- Full mobile navigation with hamburger menu
-- All project nav links in mobile drawer
-- Active state highlighting
-- Backdrop overlay with animation
-
-#### UX Polish
-- Animations: fade-in, slide-in-right/left, scale-in, shimmer, stagger-children, slide-down, pulse-soft, backdrop, toast-in, count-up
-- Button press states (scale on active)
+### Animations & Polish
+- Page entrance: fade-in with translate
+- Staggered children for card grids
+- Column entrance animation on board
+- Scale-in for modals/dropdowns
+- Loading skeletons (dashboard, board)
+- Card hover lift effect
+- Button press states
+- Toast notifications
 - Custom scrollbars
-- Card hover lift effects
-- Toast notifications with icons and backdrop blur
-- Code splitting (recharts/dndkit separate chunks)
-- EmptyState, LoadingSpinner, SkeletonCard/List components
+- Progress bar fill animation
+- Shimmer loading effect
 
-## Design Fusion
-- Colors: Everforest (canopy greens, bark neutrals, forest accents)
-- Typography: Space Grotesk display + DM Sans body + JetBrains Mono code
-- Layout: Linear app principles (structured sidebar, content area)
-- Details: Rounded cards with priority color borders, avatar initials
+## Design System
+- Colors: Everforest-inspired (canopy greens, bark neutrals)
+- Typography: Space Grotesk (display), DM Sans (body), JetBrains Mono (code)
+- Layout: Linear-style sidebar + content area
+- Details: Priority color borders, avatar initials, status badges
 
-## API Verification (All Working)
-- GET /api/projects - 3 projects
-- GET /api/projects/:id - single project
-- POST /api/projects - create project
-- GET /api/projects/:id/issues - 25 issues
-- POST /api/projects/:id/issues - create issue (verified E2E)
-- PUT /api/issues/:id - update issue
-- PUT /api/issues/:id/move - move issue
-- GET /api/projects/:id/sprints - 3 sprints
-- POST /api/projects/:id/sprints - create sprint
-- GET /api/projects/:id/epics - 3 epics
-- POST /api/projects/:id/epics - create epic
-- GET /api/announcements - announcements
-- POST /api/announcements - create announcement
-- POST /api/seed - seed data
+## API Configuration
+- Deployed API: https://xcu2fdrr5f.execute-api.us-east-1.amazonaws.com
+- Vite proxy: /api -> deployed API (CORS bypass)
+- Frontend port: 6174
+- All CRUD operations work through the proxy
 
 ## How to Run
 ```bash
 cd /app/workspace/issue-2/generated-app/frontend
-kill $(lsof -t -i:6174) 2>/dev/null
 npx vite --port 6174
 ```
 Frontend at http://localhost:6174, API proxied through Vite to deployed backend.
