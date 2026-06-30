@@ -10,6 +10,7 @@ import { SprintPage } from './pages/SprintPage';
 import { EpicsPage } from './pages/EpicsPage';
 import { AnnouncementsPage } from './pages/AnnouncementsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { IssueDetailPage } from './pages/IssueDetailPage';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/projects/:projectId/sprints" element={<SprintPage />} />
             <Route path="/projects/:projectId/epics" element={<EpicsPage />} />
             <Route path="/projects/:projectId/settings" element={<SettingsPage />} />
+            <Route path="/projects/:projectId/issues/:issueId" element={<IssueDetailPage />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
           </Route>
         </Routes>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Filter } from '../components/icons';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
@@ -27,6 +27,7 @@ const PRIORITY_BORDER_COLORS: Record<string, string> = {
 
 export function BoardPage() {
   const { projectId: paramProjectId } = useParams();
+  const navigate = useNavigate();
   const { currentProject } = useProjectContext();
   const projectId = paramProjectId || currentProject?.id || DEFAULT_PROJECT_ID;
 
@@ -148,6 +149,7 @@ export function BoardPage() {
                 columnIssues[col.status]?.map((issue: Issue) => (
                   <div
                     key={issue.id}
+                    onClick={() => navigate(`/projects/${projectId}/issues/${issue.id}`)}
                     className={cn(
                       'bg-white rounded-lg border border-bark-200 p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer border-l-4',
                       PRIORITY_BORDER_COLORS[issue.priority]

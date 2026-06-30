@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, Menu, Database } from '../icons';
 import { SEED_USERS } from '../../utils/constants';
 import { getUserInitials, getAvatarColor } from '../../utils/helpers';
@@ -12,8 +12,25 @@ interface HeaderProps {
 export function Header({ onMenuToggle }: HeaderProps) {
   const [currentUser] = useState(SEED_USERS[0]);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const seedMutation = useSeedData();
   const { addToast } = useToast();
+
+  // Keyboard shortcut: ⌘K or Ctrl+K to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        searchRef.current?.blur();
+        setSearchQuery('');
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSeed = async () => {
     try {
@@ -38,6 +55,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
       <div className="flex-1 max-w-md relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bark-400" />
         <input
+          ref={searchRef}
           type="text"
           placeholder="Search issues, projects..."
           value={searchQuery}
