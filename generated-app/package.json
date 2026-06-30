@@ -1,0 +1,15 @@
+{
+  "name": "aws-news-hub",
+  "private": true,
+  "workspaces": ["shared", "frontend", "backend", "infrastructure"],
+  "scripts": {
+    "build:shared": "cd shared && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "seed": "cd backend && npx tsx seed.ts",
+    "test:shared": "cd shared && npx tsc --noEmit",
+    "test:infra": "cd infrastructure && npm test",
+    "synth": "cd infrastructure && npx cdk synth"
+  }
+}
