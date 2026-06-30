@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Menu, Database } from '../icons';
 import { SEED_USERS } from '../../utils/constants';
 import { getUserInitials, getAvatarColor } from '../../utils/helpers';
 import { useSeedData } from '../../api/seed';
 import { useToast } from '../../context/ToastContext';
+import { CommandPalette } from '../CommandPalette';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -11,21 +12,16 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle }: HeaderProps) {
   const [currentUser] = useState(SEED_USERS[0]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchRef = useRef<HTMLInputElement>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const seedMutation = useSeedData();
   const { addToast } = useToast();
 
-  // Keyboard shortcut: ⌘K or Ctrl+K to focus search
+  // Keyboard shortcut: ⌘K or Ctrl+K to open command palette
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        searchRef.current?.focus();
-      }
-      if (e.key === 'Escape') {
-        searchRef.current?.blur();
-        setSearchQuery('');
+        setPaletteOpen(prev => !prev);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -51,23 +47,20 @@ export function Header({ onMenuToggle }: HeaderProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Search */}
-      <div className="flex-1 max-w-md relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bark-400" />
-        <input
-          ref={searchRef}
-          type="text"
-          placeholder="Search issues, projects..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-bark-100 border border-transparent rounded-lg text-sm
-            placeholder:text-bark-400 focus:bg-white focus:border-canopy-300 focus:ring-1 focus:ring-canopy-300
-            transition-all outline-none"
-        />
-        <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 px-1.5 py-0.5 rounded bg-bark-200 text-bark-500 text-[10px] font-mono">
+      {/* Search trigger */}
+      <button
+        onClick={() => setPaletteOpen(true)}
+        className="flex-1 max-w-md flex items-center gap-3 px-3 py-2 bg-bark-100 border border-transparent rounded-lg text-sm
+          text-bark-400 hover:bg-bark-50 hover:border-bark-200 transition-all cursor-pointer"
+      >
+        <Search className="w-4 h-4" />
+        <span className="flex-1 text-left">Search issues, projects...</span>
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-bark-200 text-bark-500 text-[10px] font-mono">
           ⌘K
         </kbd>
-      </div>
+      </button>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
       {/* Actions */}
       <div className="flex items-center gap-2">

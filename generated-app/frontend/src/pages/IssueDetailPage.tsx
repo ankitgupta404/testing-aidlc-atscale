@@ -29,12 +29,13 @@ export function IssueDetailPage() {
   const { data: issues } = useIssues(pid);
   const { data: sprints } = useSprints(pid);
   const { data: epics } = useEpics(pid);
-  const { data: commentsData } = useComments(issueId);
   const updateIssue = useUpdateIssue();
   const createComment = useCreateComment();
   const deleteComment = useDeleteComment();
 
-  const issue = issues?.find((i: Issue) => i.id === issueId);
+  const issue = issues?.find((i: Issue) => i.id === issueId || i.key === issueId);
+  const resolvedIssueId = issue?.id || issueId;
+  const { data: commentsData } = useComments(resolvedIssueId);
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState(false);
