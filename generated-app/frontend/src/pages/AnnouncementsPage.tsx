@@ -10,12 +10,14 @@ import type { Announcement } from '@canopy/shared';
 
 const PRIORITY_DOT_COLORS: Record<string, string> = {
   info: 'bg-sky',
+  success: 'bg-canopy-500',
   warning: 'bg-amber',
   critical: 'bg-rust',
 };
 
 const PRIORITY_ICONS: Record<string, React.ReactNode> = {
   info: <Info className="w-4 h-4 text-sky" />,
+  success: <Info className="w-4 h-4 text-canopy-600" />,
   warning: <AlertTriangle className="w-4 h-4 text-amber" />,
   critical: <AlertOctagon className="w-4 h-4 text-rust" />,
 };
