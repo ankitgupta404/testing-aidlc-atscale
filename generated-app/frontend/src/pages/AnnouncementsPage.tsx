@@ -240,15 +240,17 @@ export function AnnouncementsPage() {
                   <p className="text-sm text-bark-600 mt-1.5 line-clamp-3 whitespace-pre-wrap">{announcement.body}</p>
                   <div className="flex items-center gap-3 mt-3">
                     <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          'w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-medium',
-                          getAvatarColor(getUserName(announcement.authorId))
-                        )}
-                      >
-                        {getUserInitials(getUserName(announcement.authorId))}
-                      </div>
-                      <span className="text-xs text-bark-500">{getUserName(announcement.authorId)}</span>
+                      {(() => {
+                        const name = (announcement as any).author || getUserName(announcement.authorId);
+                        return (
+                          <>
+                            <div className={cn('w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-medium', getAvatarColor(name))}>
+                              {getUserInitials(name)}
+                            </div>
+                            <span className="text-xs text-bark-500">{name}</span>
+                          </>
+                        );
+                      })()}
                     </div>
                     <span className="text-xs text-bark-400">{getRelativeTime(announcement.createdAt)}</span>
                     <span className="flex items-center gap-1 text-xs text-bark-500">
