@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { X, LayoutDashboard, FolderKanban, Megaphone, Trees } from 'lucide-react';
+import { X, LayoutDashboard, FolderKanban, Megaphone, Trees } from '../icons';
 
 interface MobileNavProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, X, Hexagon } from 'lucide-react';
+import { Plus, X, Hexagon } from '../components/icons';
 import { useEpics, useCreateEpic } from '../api/epics';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';

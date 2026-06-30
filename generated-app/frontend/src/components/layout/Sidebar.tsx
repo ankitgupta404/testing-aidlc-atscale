@@ -2,7 +2,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, List, Columns3,
   Milestone, Layers, Megaphone, Settings, Trees
-} from 'lucide-react';
+} from '../icons';
 import { useProjectContext } from '../../context/ProjectContext';
 
 const NAV_ITEMS = [

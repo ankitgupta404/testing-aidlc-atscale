@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, X, Pin, Edit2, Trash2, AlertTriangle, Info, AlertOctagon,
-} from 'lucide-react';
+} from '../components/icons';
 import { useAnnouncements, useCreateAnnouncement, useUpdateAnnouncement, useDeleteAnnouncement } from '../api/announcements';
 import { useToast } from '../context/ToastContext';
 import { SEED_USERS } from '../utils/constants';

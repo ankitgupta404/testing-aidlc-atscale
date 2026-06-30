@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Filter } from 'lucide-react';
+import { Filter } from '../components/icons';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';
 import {

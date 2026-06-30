@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FolderKanban, Search } from 'lucide-react';
+import { Plus, FolderKanban, Search } from '../components/icons';
 import { useProjects, useCreateProject } from '../api/projects';
 import { useProjectContext } from '../context/ProjectContext';
 import { useToast } from '../context/ToastContext';

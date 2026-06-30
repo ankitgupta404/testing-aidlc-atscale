@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, X, Calendar, Target, Zap } from 'lucide-react';
+import { Plus, X, Calendar, Target, Zap } from '../components/icons';
 import { useSprints, useCreateSprint } from '../api/sprints';
 import { useIssues } from '../api/issues';
 import { useProjectContext } from '../context/ProjectContext';

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, TrendingUp, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Activity, TrendingUp, CheckCircle2, Clock, AlertTriangle } from '../components/icons';
 import { useProjects } from '../api/projects';
 import { useIssues } from '../api/issues';
 import { useSprints } from '../api/sprints';
@@ -14,15 +14,16 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { currentProject, setCurrentProject } = useProjectContext();
   const { data: projects } = useProjects();
-  const projectId = currentProject?.id || (projects && projects.length > 0 ? projects[0].id : DEFAULT_PROJECT_ID);
+  const projectId = currentProject?.id || DEFAULT_PROJECT_ID;
   const { data: issues } = useIssues(projectId);
   const { data: sprints } = useSprints(projectId);
   const { data: announcements } = useAnnouncements();
 
-  // Auto-set current project
+  // Auto-set current project - prefer the default seeded project
   useEffect(() => {
     if (!currentProject && projects && projects.length > 0) {
-      setCurrentProject(projects[0]);
+      const defaultProj = projects.find(p => p.id === DEFAULT_PROJECT_ID);
+      setCurrentProject(defaultProj || projects[0]);
     }
   }, [projects, currentProject, setCurrentProject]);
 

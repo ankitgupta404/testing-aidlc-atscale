@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Menu, Database } from 'lucide-react';
+import { Search, Menu, Database } from '../icons';
 import { SEED_USERS } from '../../utils/constants';
 import { getUserInitials, getAvatarColor } from '../../utils/helpers';
 import { useSeedData } from '../../api/seed';

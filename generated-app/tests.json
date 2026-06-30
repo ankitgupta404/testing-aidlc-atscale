@@ -1,0 +1,142 @@
+{
+  "tests": [
+    {
+      "id": "shared-schemas-compile",
+      "category": "shared",
+      "description": "Shared schemas compile without errors",
+      "status": "pass"
+    },
+    {
+      "id": "shared-types-export",
+      "category": "shared",
+      "description": "Shared types are properly exported",
+      "status": "pass"
+    },
+    {
+      "id": "cdk-synth",
+      "category": "infrastructure",
+      "description": "CDK stack synthesizes successfully",
+      "status": "pass"
+    },
+    {
+      "id": "cdk-tests",
+      "category": "infrastructure",
+      "description": "CDK tests pass (snapshot + assertions)",
+      "status": "pass"
+    },
+    {
+      "id": "backend-compile",
+      "category": "backend",
+      "description": "Backend TypeScript compiles without errors",
+      "status": "pass"
+    },
+    {
+      "id": "api-list-projects",
+      "category": "backend",
+      "description": "GET /api/projects returns project list",
+      "status": "pass"
+    },
+    {
+      "id": "api-get-project",
+      "category": "backend",
+      "description": "GET /api/projects/:id returns a single project",
+      "status": "pass"
+    },
+    {
+      "id": "api-list-issues",
+      "category": "backend",
+      "description": "GET /api/projects/:id/issues returns issues",
+      "status": "pass"
+    },
+    {
+      "id": "api-list-sprints",
+      "category": "backend",
+      "description": "GET /api/projects/:id/sprints returns sprints",
+      "status": "pass"
+    },
+    {
+      "id": "api-list-epics",
+      "category": "backend",
+      "description": "GET /api/projects/:id/epics returns epics",
+      "status": "pass"
+    },
+    {
+      "id": "api-list-announcements",
+      "category": "backend",
+      "description": "GET /api/projects/:id/announcements returns announcements",
+      "status": "pass"
+    },
+    {
+      "id": "api-create-project",
+      "category": "backend",
+      "description": "POST /api/projects creates a new project",
+      "status": "pass"
+    },
+    {
+      "id": "api-create-issue",
+      "category": "backend",
+      "description": "POST /api/projects/:id/issues creates a new issue",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-dashboard",
+      "category": "frontend",
+      "description": "Dashboard page loads with stats and data",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-projects",
+      "category": "frontend",
+      "description": "Projects page shows project cards",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-board",
+      "category": "frontend",
+      "description": "Board page shows Kanban columns with issues",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-backlog",
+      "category": "frontend",
+      "description": "Backlog page shows issues grouped by sprint",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-sprints",
+      "category": "frontend",
+      "description": "Sprints page shows sprint list with statuses",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-epics",
+      "category": "frontend",
+      "description": "Epics page shows epic cards",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-announcements",
+      "category": "frontend",
+      "description": "Announcements page shows announcement list",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-settings",
+      "category": "frontend",
+      "description": "Settings page renders with tabs",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-navigation",
+      "category": "frontend",
+      "description": "Sidebar navigation works between pages",
+      "status": "pass"
+    },
+    {
+      "id": "frontend-build",
+      "category": "frontend",
+      "description": "Frontend builds for production without errors",
+      "status": "pass"
+    }
+  ]
+}

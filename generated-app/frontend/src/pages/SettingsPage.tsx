@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Layout } from 'lucide-react';
+import { Settings, Layout } from '../components/icons';
 import { useProjectContext } from '../context/ProjectContext';
 import { STATUS_LABELS } from '../utils/constants';
 import { cn } from '../utils/helpers';

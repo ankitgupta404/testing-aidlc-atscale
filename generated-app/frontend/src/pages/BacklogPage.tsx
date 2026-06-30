@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import {
   Search, Plus, ChevronDown, ChevronRight, X,
   Bug, BookOpen, CheckSquare, Layers, Hexagon,
-} from 'lucide-react';
+} from '../components/icons';
 import { useIssues, useCreateIssue } from '../api/issues';
 import { useSprints } from '../api/sprints';
 import { useProjectContext } from '../context/ProjectContext';
