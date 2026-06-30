@@ -45,3 +45,5 @@ export { default as ArrowLeft } from 'lucide-react/dist/esm/icons/arrow-left.js'
 export { default as User } from 'lucide-react/dist/esm/icons/user.js';
 export { default as Tag } from 'lucide-react/dist/esm/icons/tag.js';
 export { default as Zap } from 'lucide-react/dist/esm/icons/zap.js';
+export { default as Moon } from 'lucide-react/dist/esm/icons/moon.js';
+export { default as Sun } from 'lucide-react/dist/esm/icons/sun.js';

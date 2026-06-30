@@ -1,9 +1,10 @@
 import { NavLink, useParams } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, List, Columns3,
-  Milestone, Layers, Megaphone, Settings, Trees
+  Milestone, Layers, Megaphone, Settings, Trees, Moon, Sun
 } from '../icons';
 import { useProjectContext } from '../../context/ProjectContext';
+import { useTheme } from '../../context/ThemeContext';
 import { DEFAULT_PROJECT_ID } from '../../utils/constants';
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const PROJECT_NAV = [
 export function Sidebar() {
   const { currentProject } = useProjectContext();
   const { projectId } = useParams();
+  const { theme, toggleTheme } = useTheme();
   const activeProjectId = projectId || currentProject?.id || DEFAULT_PROJECT_ID;
   const projectLabel = currentProject?.name || 'Canopy Platform';
 
@@ -96,8 +98,15 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-bark-700/50 text-xs text-bark-500">
-        Canopy v1.0
+      <div className="px-4 py-3 border-t border-bark-700/50 flex items-center justify-between">
+        <span className="text-xs text-bark-500">Canopy v1.0</span>
+        <button
+          onClick={toggleTheme}
+          className="p-1.5 rounded-lg text-bark-400 hover:text-white hover:bg-bark-700/50 transition-colors"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
       </div>
     </aside>
   );

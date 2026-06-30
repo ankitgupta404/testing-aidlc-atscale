@@ -37,18 +37,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
       {/* Toast display */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`animate-slide-in-right rounded-lg px-4 py-3 shadow-lg text-sm font-medium transition-all
-              ${toast.type === 'success' ? 'bg-canopy-600 text-white' : ''}
-              ${toast.type === 'error' ? 'bg-rust text-white' : ''}
-              ${toast.type === 'info' ? 'bg-bark-800 text-white' : ''}
+            className={`animate-toast pointer-events-auto cursor-pointer rounded-xl px-4 py-3 shadow-xl text-sm font-medium flex items-center gap-2.5 min-w-[200px] max-w-sm backdrop-blur-sm border
+              ${toast.type === 'success' ? 'bg-canopy-600/95 text-white border-canopy-500/30' : ''}
+              ${toast.type === 'error' ? 'bg-rust/95 text-white border-red-500/30' : ''}
+              ${toast.type === 'info' ? 'bg-bark-800/95 text-white border-bark-600/30' : ''}
             `}
             onClick={() => removeToast(toast.id)}
           >
-            {toast.message}
+            <span className="text-base">
+              {toast.type === 'success' && '✓'}
+              {toast.type === 'error' && '✗'}
+              {toast.type === 'info' && 'ℹ'}
+            </span>
+            <span className="flex-1">{toast.message}</span>
           </div>
         ))}
       </div>
